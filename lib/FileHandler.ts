@@ -15,7 +15,6 @@ export default class Filemanager {
 		content: string,
 		frontData: Record<string, string | number> = {},
 	) {
-		console.log(frontData);
 		const newName = `${this.settings.folder}/${frontData.channel}/${title}.md`;
 		await this.app.vault.modify(filePath, content);
 		await this.writeFrontmatter(filePath, frontData);

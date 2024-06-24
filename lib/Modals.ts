@@ -51,7 +51,6 @@ export class ChannelsModal extends FuzzySuggestModal<Channel> {
 	}
 
 	renderSuggestion(match: FuzzyMatch<Channel>, el: HTMLElement): void {
-		console.log(match.item);
 		if (match.item.status === "private") {
 			el.addClass("is-private");
 		}

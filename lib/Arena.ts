@@ -88,7 +88,7 @@ export default class Arenilla {
 		content = content.replace(/---[\s\S]*?---\n/g, "");
 
 		if (!title && !description && content.length === 0) {
-			console.log("Content is empty");
+			console.error("Content is empty");
 			return {} as Block;
 		}
 

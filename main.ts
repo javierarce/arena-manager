@@ -131,8 +131,8 @@ export default class ArenaSync extends Plugin {
 								frontData,
 							);
 						} catch (error) {
-							new Notice("Error creating file");
 							console.error(error);
+							new Notice("Error creating file");
 						}
 					}
 
