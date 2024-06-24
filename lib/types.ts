@@ -1,3 +1,6 @@
+export const ARENA_BLOCK_URL = "https://www.are.na/block/";
+export const ARENA_APP_URL = "https://dev.are.na/oauth/applications";
+
 export interface Channel {
 	id: number;
 	slug: string;

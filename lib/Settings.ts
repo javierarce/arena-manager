@@ -1,6 +1,6 @@
 import { Setting, PluginSettingTab } from "obsidian";
+import { ARENA_APP_URL } from "./types";
 
-const ARENA_APP_URL = "https://dev.are.na/oauth/applications";
 export interface Settings {
 	accessToken: string;
 	username: string;

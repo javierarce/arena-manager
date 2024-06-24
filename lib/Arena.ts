@@ -1,9 +1,10 @@
-import { ArenaSettings, Channel, Block } from "./interfaces";
+import { Channel, Block } from "./types";
+import { Settings } from "./Settings";
 
 export default class Arenilla {
-	settings: ArenaSettings;
+	settings: Settings;
 
-	constructor(settings: ArenaSettings) {
+	constructor(settings: Settings) {
 		this.settings = settings;
 	}
 
@@ -26,9 +27,10 @@ export default class Arenilla {
 		id: number,
 		title: string,
 		content: string,
-		frontmatter: any,
+		frontmatter: Record<string, string | number> = {},
 	): Promise<void> {
-		title = frontmatter.title || title;
+		const newTitle =
+			typeof frontmatter.title === "string" ? frontmatter.title : title;
 		const description = frontmatter.description;
 		content = content.replace(/---[\s\S]*?---\n/g, "");
 
@@ -39,7 +41,7 @@ export default class Arenilla {
 				"Content-Type": "application/json",
 			},
 			body: JSON.stringify({
-				title,
+				title: newTitle,
 				content,
 				description,
 			}),
@@ -77,7 +79,7 @@ export default class Arenilla {
 		content: string,
 		generated_title: string,
 		channelSlug: string,
-		frontmatter: any,
+		frontmatter: Record<string, string | number> = {},
 	): Promise<Block> {
 		const title = frontmatter.title || generated_title;
 		const description = frontmatter.description;

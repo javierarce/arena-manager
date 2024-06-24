@@ -1,27 +1,19 @@
-import { Notice, Plugin } from "obsidian";
+import { Events, Notice, Plugin } from "obsidian";
 
+import { ARENA_BLOCK_URL, Channel, Block } from "./lib/types";
 import {
 	Settings,
 	DEFAULT_SETTINGS,
 	TemplaterSettingTab,
 } from "./lib/Settings";
+
 import { ChannelsModal, BlocksModal } from "./lib/Modals";
 import FileHandler from "./lib/FileHandler";
-import { Channel, Block } from "./lib/interfaces";
 import Arenilla from "./lib/Arena";
-
-const ARENA_BLOCK_URL = "https://www.are.na/block/";
-const EMPTY_TEXT = "No block found. Press esc to dismiss.";
-const PLACEHOLDER_TEXT = "Type name to fuzzy find.";
-const INSTRUCTIONS = [
-	{ command: "↑↓", purpose: "to navigate" },
-	{ command: "Tab ↹", purpose: "to autocomplete" },
-	{ command: "↵", purpose: "to choose item" },
-	{ command: "esc", purpose: "to dismiss" },
-];
 
 export default class ArenaSync extends Plugin {
 	settings: Settings;
+	events: Events;
 	arena: Arenilla;
 
 	createPermalinkFromTitle(title: string) {
@@ -29,7 +21,7 @@ export default class ArenaSync extends Plugin {
 	}
 
 	getFrontmatterFromBlock(block: Block, channelTitle?: string) {
-		const frontmatter: { [key: string]: any } = {};
+		const frontmatter: Record<string, string | number> = {};
 
 		frontmatter["blockid"] = block.id;
 
@@ -59,12 +51,14 @@ export default class ArenaSync extends Plugin {
 	async onload() {
 		await this.loadSettings();
 
+		this.events = new Events();
+
 		this.addSettingTab(new TemplaterSettingTab(this));
 
 		this.addCommand({
-			id: "create-blocks-from-channel",
-			name: "Create blocks from channel",
-			callback: this.createBlocksFromChannel.bind(this),
+			id: "get-blocks-from-channel",
+			name: "Get blocks from channel",
+			callback: this.getBlocksFromChannel.bind(this),
 		});
 
 		this.addCommand({
@@ -81,7 +75,7 @@ export default class ArenaSync extends Plugin {
 
 		this.addCommand({
 			id: "get-block-from-arena",
-			name: "Get block from Are.na",
+			name: "Get a block from Are.na",
 			callback: this.getBlockFromArena.bind(this),
 		});
 
@@ -106,7 +100,7 @@ export default class ArenaSync extends Plugin {
 		await this.saveData(this.settings);
 	}
 
-	async createBlocksFromChannel() {
+	async getBlocksFromChannel() {
 		this.arena = new Arenilla(this.settings);
 
 		const callback = async (channel: Channel) => {
@@ -144,16 +138,19 @@ export default class ArenaSync extends Plugin {
 				});
 		};
 
-		const channels = await this.arena.getChannelsFromUser();
 		const modal = new ChannelsModal(
 			this.app,
-			channels,
 			this.settings,
 			false,
+			this.events,
 			callback,
 		);
 
 		modal.open();
+
+		this.arena.getChannelsFromUser().then((channels) => {
+			this.events.trigger("channels-load", channels);
+		});
 	}
 
 	async pullBlock() {
@@ -243,14 +240,17 @@ export default class ArenaSync extends Plugin {
 						);
 					};
 
-					const channels = await this.arena.getChannelsFromUser();
 					const modal = new ChannelsModal(
 						this.app,
-						channels,
 						this.settings,
 						true,
+						this.events,
 						callback,
 					);
+
+					this.arena.getChannelsFromUser().then((channels) => {
+						this.events.trigger("channels-load", channels);
+					});
 
 					modal.open();
 				}
@@ -301,22 +301,32 @@ export default class ArenaSync extends Plugin {
 				await this.app.workspace.openLinkText(filePath, "", true);
 			};
 
-			const blocks = await this.arena.getBlocksFromChannel(channel.slug);
-			const modal = new BlocksModal(this.app, blocks, channel, callback);
+			const modal = new BlocksModal(
+				this.app,
+				channel,
+				this.events,
+				callback,
+			);
 
 			modal.open();
-		};
 
-		const channels = await this.arena.getChannelsFromUser();
+			this.arena.getBlocksFromChannel(channel.slug).then((channels) => {
+				this.events.trigger("blocks-load", channels);
+			});
+		};
 
 		const modal = new ChannelsModal(
 			this.app,
-			channels,
 			this.settings,
 			false,
+			this.events,
 			callback,
 		);
 
 		modal.open();
+
+		this.arena.getChannelsFromUser().then((channels) => {
+			this.events.trigger("channels-load", channels);
+		});
 	}
 }

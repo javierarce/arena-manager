@@ -1,36 +1,51 @@
-import { App, FuzzySuggestModal, FuzzyMatch } from "obsidian";
+import { Events, App, FuzzySuggestModal, FuzzyMatch } from "obsidian";
 import { Settings } from "./Settings";
-import { Channel, Block } from "./interfaces";
+import { Channel, Block } from "./types";
+
+const INSTRUCTIONS = [
+	{ command: "↑↓", purpose: "to navigate" },
+	{ command: "Tab ↹", purpose: "to autocomplete" },
+	{ command: "↵", purpose: "to choose item" },
+	{ command: "esc", purpose: "to dismiss" },
+];
 
 export class ChannelsModal extends FuzzySuggestModal<Channel> {
 	channels: Channel[];
 	settings: Settings;
 	showEmptyChannels: boolean;
+	events: Events;
 	callback: (channel: Channel) => void;
+
+	onOpen(): void {
+		const $prompt = this.containerEl.querySelector(".prompt-results");
+		if ($prompt) {
+			$prompt.addClass("is-loading");
+		}
+		this.events.on("channels-load", (channels: Channel[]) => {
+			this.channels = channels;
+			if ($prompt) {
+				$prompt.removeClass("is-loading");
+			}
+			this.setInstructions(INSTRUCTIONS);
+			super.onOpen();
+		});
+	}
 
 	constructor(
 		app: App,
-		channels: Channel[],
 		settings: Settings,
 		showEmptyChannels: boolean,
+		events: Events,
 		callback: (channel: Channel) => void,
 	) {
 		super(app);
-		this.channels = channels;
 		this.settings = settings;
+		this.events = events;
 		this.showEmptyChannels = showEmptyChannels;
 		this.callback = callback;
 
-		const INSTRUCTIONS = [
-			{ command: "↑↓", purpose: "to navigate" },
-			{ command: "Tab ↹", purpose: "to autocomplete" },
-			{ command: "↵", purpose: "to choose item" },
-			{ command: "esc", purpose: "to dismiss" },
-		];
-
 		this.emptyStateText = "No channels found. Press esc to dismiss.";
 		this.setPlaceholder(`Search @${this.settings.username}'s channels`);
-		this.setInstructions(INSTRUCTIONS);
 
 		this.containerEl.addClass("arena-manager-modal");
 	}
@@ -66,29 +81,38 @@ export class ChannelsModal extends FuzzySuggestModal<Channel> {
 export class BlocksModal extends FuzzySuggestModal<Block> {
 	blocks: Block[];
 	channel: Channel;
-	callback: (blocks: Block, channel: Channel) => void;
+	events: Events;
+	callback: (block: Block, channel: Channel) => void;
+
+	onOpen(): void {
+		const $prompt = this.containerEl.querySelector(".prompt-results");
+		if ($prompt) {
+			$prompt.addClass("is-loading");
+		}
+		this.events.on("blocks-load", (blocks: Block[]) => {
+			this.blocks = blocks;
+			if ($prompt) {
+				$prompt.removeClass("is-loading");
+			}
+			this.setInstructions(INSTRUCTIONS);
+			super.onOpen();
+		});
+	}
 
 	constructor(
 		app: App,
-		blocks: Block[],
 		channel: Channel,
-		callback: (blocks: Block, channel: Channel) => void,
+		events: Events,
+		callback: (block: Block, channel: Channel) => void,
 	) {
 		super(app);
-		this.blocks = blocks;
+		this.blocks = [];
 		this.channel = channel;
+		this.events = events;
 		this.callback = callback;
-
-		const INSTRUCTIONS = [
-			{ command: "↑↓", purpose: "to navigate" },
-			{ command: "Tab ↹", purpose: "to autocomplete" },
-			{ command: "↵", purpose: "to choose item" },
-			{ command: "esc", purpose: "to dismiss" },
-		];
 
 		this.emptyStateText = "No blocks found. Press esc to dismiss.";
 		this.setPlaceholder(`Search blocks from ${channel.title}`);
-		this.setInstructions(INSTRUCTIONS);
 		this.emptyStateText = "Loading...";
 	}
 
