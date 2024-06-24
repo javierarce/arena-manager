@@ -23,7 +23,6 @@ export class TemplaterSettingTab extends PluginSettingTab {
 	display(): void {
 		this.containerEl.empty();
 
-		this.addHeader();
 		this.addFolder();
 		this.addUsername();
 		this.addAccessToken();
