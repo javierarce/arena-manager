@@ -16,7 +16,10 @@ Currently this plugin offers 5 commands:
 
 ### Installation
 
-1. Install the plugin from the community or build it from source.
+> [!IMPORTANT]  
+> The plugin is not yet available in the Obsidian community, so you need to install it manually for now
+
+1. Install the plugin from source.
 2. Create a new Are.na application at [https://dev.are.na/oauth/applications](https://dev.are.na/oauth/applications) and copy the access token.
 3. Open the settings of the plugin and set the following options:
     - **Personal access token**: Your Are.na Personal Access Token,
@@ -42,4 +45,4 @@ This plugin is still in development and has some known limitations:
 
 ### Contributing
 
-If you have any ideas or suggestions, feel free to open an issue.
+If you have any ideas or suggestions, feel free to [open an issue](https://github.com/javierarce/arena-manager/issues).
