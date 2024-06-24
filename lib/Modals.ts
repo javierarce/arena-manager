@@ -1,4 +1,4 @@
-import { App, MarkdownView, Modal, FuzzySuggestModal } from "obsidian";
+import { App, FuzzySuggestModal, FuzzyMatch } from "obsidian";
 import { Settings } from "./Settings";
 import { Channel, Block } from "./interfaces";
 
@@ -20,7 +20,30 @@ export class ChannelsModal extends FuzzySuggestModal<Channel> {
 		this.settings = settings;
 		this.showEmptyChannels = showEmptyChannels;
 		this.callback = callback;
-		this.emptyStateText = "Loading...";
+
+		const INSTRUCTIONS = [
+			{ command: "↑↓", purpose: "to navigate" },
+			{ command: "Tab ↹", purpose: "to autocomplete" },
+			{ command: "↵", purpose: "to choose item" },
+			{ command: "esc", purpose: "to dismiss" },
+		];
+
+		this.emptyStateText = "No channels found. Press esc to dismiss.";
+		this.setPlaceholder(`Search @${this.settings.username}'s channels`);
+		this.setInstructions(INSTRUCTIONS);
+
+		this.containerEl.addClass("arena-manager-modal");
+	}
+
+	renderSuggestion(match: FuzzyMatch<Channel>, el: HTMLElement): void {
+		console.log(match.item);
+		if (match.item.status === "private") {
+			el.addClass("is-private");
+		}
+		el.createEl("span", { text: match.item.title });
+		el.createEl("span", { text: match.item.length.toString() }).addClass(
+			"count",
+		);
 	}
 
 	getItems(): Channel[] {
@@ -55,6 +78,17 @@ export class BlocksModal extends FuzzySuggestModal<Block> {
 		this.blocks = blocks;
 		this.channel = channel;
 		this.callback = callback;
+
+		const INSTRUCTIONS = [
+			{ command: "↑↓", purpose: "to navigate" },
+			{ command: "Tab ↹", purpose: "to autocomplete" },
+			{ command: "↵", purpose: "to choose item" },
+			{ command: "esc", purpose: "to dismiss" },
+		];
+
+		this.emptyStateText = "No blocks found. Press esc to dismiss.";
+		this.setPlaceholder(`Search blocks from ${channel.title}`);
+		this.setInstructions(INSTRUCTIONS);
 		this.emptyStateText = "Loading...";
 	}
 

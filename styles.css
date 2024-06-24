@@ -6,3 +6,19 @@ available in the app when your plugin is enabled.
 If your plugin does not need CSS, delete this file.
 
 */
+
+.arena-manager-modal .suggestion-item {
+	display: flex;
+	gap: 0.4em;
+	align-items: center;
+}
+.arena-manager-modal .suggestion-item.is-private:before {
+	content: "";
+	width: 8px;
+	height: 8px;
+	background-color: #f8f9fa;
+	border-radius: 50%;
+}
+.arena-manager-modal span.count {
+	opacity: 0.5;
+}

@@ -41,10 +41,6 @@ export default class ArenaSync extends Plugin {
 			frontmatter["user"] = block.user.slug;
 		}
 
-		// if (block.connected_by_user_slug) {
-		// 	frontmatter["connected by"] = block.connected_by_user_slug;
-		// }
-
 		if (block.source?.title) {
 			frontmatter["source title"] = block.source.title;
 		}
@@ -84,15 +80,15 @@ export default class ArenaSync extends Plugin {
 		});
 
 		this.addCommand({
-			id: "go-to-block",
-			name: "Go to block",
-			callback: this.goToBlock.bind(this),
-		});
-
-		this.addCommand({
 			id: "get-block-from-arena",
 			name: "Get block from Are.na",
 			callback: this.getBlockFromArena.bind(this),
+		});
+
+		this.addCommand({
+			id: "go-to-block",
+			name: "Go to block",
+			callback: this.goToBlock.bind(this),
 		});
 	}
 
@@ -157,9 +153,6 @@ export default class ArenaSync extends Plugin {
 			callback,
 		);
 
-		modal.emptyStateText = EMPTY_TEXT;
-		modal.setPlaceholder(PLACEHOLDER_TEXT);
-		modal.setInstructions(INSTRUCTIONS);
 		modal.open();
 	}
 
@@ -259,9 +252,6 @@ export default class ArenaSync extends Plugin {
 						callback,
 					);
 
-					modal.emptyStateText = EMPTY_TEXT;
-					modal.setPlaceholder(PLACEHOLDER_TEXT);
-					modal.setInstructions(INSTRUCTIONS);
 					modal.open();
 				}
 			},
@@ -292,9 +282,11 @@ export default class ArenaSync extends Plugin {
 
 		const callback = async (channel: Channel) => {
 			const callback = async (block: Block, channel: Channel) => {
-				console.log(block, channel);
 				const filePath = `${block.generated_title}.md`;
-				const frontData = this.getFrontmatterFromBlock(block);
+				const frontData = this.getFrontmatterFromBlock(
+					block,
+					channel.title,
+				);
 				const slug = this.createPermalinkFromTitle(channel.title);
 
 				const content = block.content;
@@ -304,11 +296,14 @@ export default class ArenaSync extends Plugin {
 					content,
 					frontData,
 				);
+
+				new Notice(`Block created`);
+				await this.app.workspace.openLinkText(filePath, "", true);
 			};
 
 			const blocks = await this.arena.getBlocksFromChannel(channel.slug);
-
 			const modal = new BlocksModal(this.app, blocks, channel, callback);
+
 			modal.open();
 		};
 
@@ -322,9 +317,6 @@ export default class ArenaSync extends Plugin {
 			callback,
 		);
 
-		modal.emptyStateText = EMPTY_TEXT;
-		modal.setPlaceholder(PLACEHOLDER_TEXT);
-		modal.setInstructions(INSTRUCTIONS);
 		modal.open();
 	}
 }
