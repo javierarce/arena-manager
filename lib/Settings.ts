@@ -29,12 +29,6 @@ export class TemplaterSettingTab extends PluginSettingTab {
 		this.addAccessToken();
 	}
 
-	addHeader() {
-		new Setting(this.containerEl)
-			.setHeading()
-			.setName("Are.na Manager Settings");
-	}
-
 	addFolder() {
 		new Setting(this.containerEl)
 			.setName("Folder")
