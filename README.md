@@ -14,8 +14,6 @@ Currently this plugin offers 5 commands:
 | `Get block from Are.na`   | Creates a new note with the content of a block from Are.na.                                         |
 | `Go to block in Are.na`   | Opens the block in the Are.na website.                                                              |
 
-To pull and push blocks your note will need to have a `blockid` property in the frontmatter.
-
 ### Installation
 
 1. Install the plugin from the community or build it from source.
@@ -24,6 +22,17 @@ To pull and push blocks your note will need to have a `blockid` property in the 
     - **Personal access token**: Your Are.na Personal Access Token,
     - **Username**: your Are.na slug (e.g. `username` in `https://www.are.na/username`),
     - **Folder**: Folder where you want to store the notes (by default the folder is called `are.na`).
+
+### Frontmatter structure
+
+When you get a block from Are.na, the plugin will add some frontmatter automatically to allow syncronizing your note and the block.
+
+| Property | Description                                 |
+| -------- | ------------------------------------------- |
+| blockid  | the id of the block in Are.na               |
+| class    | the class of the block in Are.na            |
+| user     | the user who created the block in Are.na    |
+| channel  | the channel where the block was pulled from |
 
 ### Limitations
 
