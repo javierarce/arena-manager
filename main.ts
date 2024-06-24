@@ -53,6 +53,16 @@ export default class ArenaManagerPlugin extends Plugin {
 		return frontmatter;
 	}
 
+	hasRequiredSettings() {
+		const { username, folder, accessToken } = this.settings;
+
+		if (!username || !folder || !accessToken) {
+			return false;
+		}
+
+		return true;
+	}
+
 	async onload() {
 		await this.loadSettings();
 
@@ -65,13 +75,31 @@ export default class ArenaManagerPlugin extends Plugin {
 		this.addCommand({
 			id: "get-blocks-from-channel",
 			name: "Get blocks from channel",
-			callback: this.getBlocksFromChannel.bind(this),
+			checkCallback: (checking: boolean) => {
+				if (this.hasRequiredSettings()) {
+					if (!checking) {
+						this.getBlocksFromChannel();
+					}
+					return true;
+				}
+
+				return false;
+			},
 		});
 
 		this.addCommand({
 			id: "pull-block",
 			name: "Pull block from Are.na",
-			callback: this.pullBlock.bind(this),
+			checkCallback: (checking: boolean) => {
+				if (this.hasRequiredSettings()) {
+					if (!checking) {
+						this.pullBlock();
+					}
+					return true;
+				}
+
+				return false;
+			},
 		});
 
 		this.addCommand({
@@ -80,7 +108,7 @@ export default class ArenaManagerPlugin extends Plugin {
 			checkCallback: (checking: boolean) => {
 				const currentFile = this.app.workspace.getActiveFile();
 
-				if (currentFile) {
+				if (currentFile && this.hasRequiredSettings()) {
 					if (!checking) {
 						this.pushBlock();
 					}
@@ -94,13 +122,33 @@ export default class ArenaManagerPlugin extends Plugin {
 		this.addCommand({
 			id: "get-block-from-arena",
 			name: "Get a block from Are.na",
-			callback: this.getBlockFromArena.bind(this),
+			checkCallback: (checking: boolean) => {
+				if (this.hasRequiredSettings()) {
+					if (!checking) {
+						this.getBlockFromArena();
+					}
+					return true;
+				}
+
+				return false;
+			},
 		});
 
 		this.addCommand({
 			id: "go-to-block",
 			name: "Go to block in Are.na",
-			callback: this.goToBlock.bind(this),
+			checkCallback: (checking: boolean) => {
+				const currentFile = this.app.workspace.getActiveFile();
+
+				if (currentFile) {
+					if (!checking) {
+						this.goToBlock();
+					}
+					return true;
+				}
+
+				return false;
+			},
 		});
 	}
 
