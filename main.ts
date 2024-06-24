@@ -26,6 +26,10 @@ export default class ArenaSync extends Plugin {
 
 		frontmatter["blockid"] = block.id;
 
+		if (block.class) {
+			frontmatter["class"] = block.class;
+		}
+
 		if (block.description) {
 			frontmatter["description"] = block.description;
 		}
@@ -83,7 +87,7 @@ export default class ArenaSync extends Plugin {
 
 		this.addCommand({
 			id: "go-to-block",
-			name: "Go to block",
+			name: "Go to block in Are.na",
 			callback: this.goToBlock.bind(this),
 		});
 	}
@@ -173,7 +177,13 @@ export default class ArenaSync extends Plugin {
 		if (blockId) {
 			this.arena.getBlockWithID(blockId).then(async (block) => {
 				const title = block.generated_title;
-				const content = block.content;
+				let content = block.content;
+
+				if (block.class === "Image") {
+					const imageUrl = block.image?.display.url;
+					content = `![](${imageUrl})`;
+				}
+
 				const channelTitle = frontMatter?.channel as string;
 				const frontData = this.getFrontmatterFromBlock(
 					block,
@@ -290,7 +300,12 @@ export default class ArenaSync extends Plugin {
 				);
 				const slug = this.createPermalinkFromTitle(channel.title);
 
-				const content = block.content;
+				let content = block.content;
+				if (block.class === "Image") {
+					const imageUrl = block.image?.display.url;
+					content = `![](${imageUrl})`;
+				}
+
 				await this.fileHandler.writeFile(
 					`${this.settings.folder}/${slug}`,
 					filePath,

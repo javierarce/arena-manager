@@ -52,10 +52,25 @@ export interface User {
 	username: string;
 }
 
+export interface URL {
+	url: string;
+}
+export interface Image {
+	content_type: string;
+	display: URL;
+	filename: string;
+	large: URL;
+	original: URL;
+	square: URL;
+	thumb: URL;
+	updated_at: string;
+}
+
 export interface Block {
 	user: User;
 	id: number;
 	base_class: string;
+	image: Image;
 	class: string;
 	comment_count: number;
 	connected_at: string;
