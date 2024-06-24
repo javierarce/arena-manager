@@ -103,8 +103,8 @@ export default class ArenaManagerPlugin extends Plugin {
 		});
 
 		this.addCommand({
-			id: "push-block",
-			name: "Push block to Are.na",
+			id: "push-note",
+			name: "Push note to Are.na",
 			checkCallback: (checking: boolean) => {
 				const currentFile = this.app.workspace.getActiveFile();
 
