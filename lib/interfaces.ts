@@ -4,6 +4,7 @@ export interface Channel {
 	title: string;
 	body: string;
 	length: number;
+	status: string;
 }
 
 export interface Provider {
