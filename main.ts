@@ -172,7 +172,9 @@ export default class ArenaManagerPlugin extends Plugin {
 				.getBlocksFromChannel(channel.slug)
 				.then(async (blocks) => {
 					for (const block of blocks) {
-						const filePath = `${block.generated_title}.md`;
+						const fileName = block.generated_title
+							? block.generated_title
+							: block.title;
 
 						const frontData = this.getFrontmatterFromBlock(
 							block,
@@ -188,7 +190,7 @@ export default class ArenaManagerPlugin extends Plugin {
 						try {
 							await this.fileHandler.writeFile(
 								`${this.settings.folder}/${slug}`,
-								filePath,
+								fileName,
 								content,
 								frontData,
 							);
@@ -362,7 +364,7 @@ export default class ArenaManagerPlugin extends Plugin {
 	async getBlockFromArena() {
 		const callback = async (channel: Channel) => {
 			const callback = async (block: Block, channel: Channel) => {
-				const filePath = `${block.generated_title}.md`;
+				const fileName = `${block.generated_title}`;
 				const frontData = this.getFrontmatterFromBlock(
 					block,
 					channel.title,
@@ -377,13 +379,13 @@ export default class ArenaManagerPlugin extends Plugin {
 
 				await this.fileHandler.writeFile(
 					`${this.settings.folder}/${slug}`,
-					filePath,
+					fileName,
 					content,
 					frontData,
 				);
 
 				new Notice(`Block created`);
-				await this.app.workspace.openLinkText(filePath, "", true);
+				await this.app.workspace.openLinkText(fileName, "", true);
 			};
 
 			const modal = new BlocksModal(

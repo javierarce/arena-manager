@@ -9,13 +9,17 @@ export default class Filemanager {
 		this.settings = settings;
 	}
 
+	getSafeFilename(fileName: string) {
+		return fileName.replace(/[\\/:]/g, " ");
+	}
+
 	async updateFile(
 		filePath: TFile,
 		title: string,
 		content: string,
 		frontData: Record<string, string | number> = {},
 	) {
-		const newName = `${this.settings.folder}/${frontData.channel}/${title}.md`;
+		const newName = `${this.settings.folder}/${frontData.channel}/${this.getSafeFilename(title)}.md`;
 		await this.app.vault.modify(filePath, content);
 		await this.writeFrontmatter(filePath, frontData);
 		await this.app.vault.rename(filePath, newName);
@@ -26,7 +30,7 @@ export default class Filemanager {
 		fileName: string,
 	): Promise<TFile> {
 		const normalizedFolderPath = folderPath.replace(/\\/g, "/");
-		const filePath = `${normalizedFolderPath}/${fileName}`;
+		const filePath = `${normalizedFolderPath}/${this.getSafeFilename(fileName)}.md`;
 		return (await this.app.vault.getAbstractFileByPath(filePath)) as TFile;
 	}
 
@@ -48,7 +52,7 @@ export default class Filemanager {
 		frontData: Record<string, string | number> = {},
 	) {
 		const normalizedFolderPath = folderPath.replace(/\\/g, "/");
-		const filePath = `${normalizedFolderPath}/${fileName}`;
+		const filePath = `${normalizedFolderPath}/${this.getSafeFilename(fileName)}.md`;
 
 		const file = this.app.vault.getAbstractFileByPath(filePath) as TFile;
 		await this.app.vault.modify(file, content);
@@ -62,7 +66,7 @@ export default class Filemanager {
 		frontData: Record<string, string | number> = {},
 	) {
 		const normalizedFolderPath = folderPath.replace(/\\/g, "/");
-		const filePath = `${normalizedFolderPath}/${fileName}`;
+		const filePath = `${normalizedFolderPath}/${this.getSafeFilename(fileName)}.md`;
 		const file = await this.app.vault.create(filePath, content);
 		await this.writeFrontmatter(file, frontData);
 	}
