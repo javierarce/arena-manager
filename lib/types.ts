@@ -8,6 +8,8 @@ export interface Channel {
 	body: string;
 	length: number;
 	status: string;
+	class: string;
+	base_class: string;
 }
 
 export interface Provider {

@@ -1,6 +1,8 @@
 import { Channel, Block } from "./types";
 import { Settings } from "./Settings";
 
+const BLOCKS_LIMIT = 1000;
+
 export default class Arenilla {
 	settings: Settings;
 
@@ -62,7 +64,7 @@ export default class Arenilla {
 
 	async getBlocksFromChannel(channelSlug: string): Promise<Block[]> {
 		return fetch(
-			`https://api.are.na/v2/channels/${channelSlug}/contents?v=${Date.now()}`,
+			`https://api.are.na/v2/channels/${channelSlug}/contents?per=${BLOCKS_LIMIT}&v=${Date.now()}`,
 			{
 				headers: {
 					Authorization: `Bearer ${this.settings.accessToken}`,

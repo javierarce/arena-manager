@@ -15,6 +15,7 @@ export default class ArenaSync extends Plugin {
 	settings: Settings;
 	events: Events;
 	arena: Arenilla;
+	fileHandler: FileHandler;
 
 	createPermalinkFromTitle(title: string) {
 		return title.replace(/-\d+$/, "");
@@ -52,6 +53,7 @@ export default class ArenaSync extends Plugin {
 		await this.loadSettings();
 
 		this.events = new Events();
+		this.fileHandler = new FileHandler(this.app, this.settings);
 
 		this.addSettingTab(new TemplaterSettingTab(this));
 
@@ -122,7 +124,7 @@ export default class ArenaSync extends Plugin {
 						const content = block.content;
 
 						try {
-							await new FileHandler(this.app).writeFile(
+							await this.fileHandler.writeFile(
 								`${this.settings.folder}/${slug}`,
 								filePath,
 								content,
@@ -163,22 +165,21 @@ export default class ArenaSync extends Plugin {
 			return;
 		}
 
-		const frontMatter = await new FileHandler(
-			this.app,
-		).getFrontmatterFromFile(currentFile);
+		const frontMatter =
+			await this.fileHandler.getFrontmatterFromFile(currentFile);
 
-		const blockId = frontMatter?.blockid;
+		const blockId = frontMatter?.blockid as number;
 
 		if (blockId) {
 			this.arena.getBlockWithID(blockId).then(async (block) => {
 				const title = block.generated_title;
 				const content = block.content;
-				const channelTitle = frontMatter?.channel;
+				const channelTitle = frontMatter?.channel as string;
 				const frontData = this.getFrontmatterFromBlock(
 					block,
 					channelTitle,
 				);
-				new FileHandler(this.app).updateFile(
+				this.fileHandler.updateFile(
 					currentFile,
 					title,
 					content,
@@ -290,7 +291,7 @@ export default class ArenaSync extends Plugin {
 				const slug = this.createPermalinkFromTitle(channel.title);
 
 				const content = block.content;
-				await new FileHandler(this.app).writeFile(
+				await this.fileHandler.writeFile(
 					`${this.settings.folder}/${slug}`,
 					filePath,
 					content,

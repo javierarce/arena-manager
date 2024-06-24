@@ -1,19 +1,22 @@
-import { TFile, TFolder } from "obsidian";
+import { App, TFile, TFolder } from "obsidian";
+import { Settings } from "./Settings";
 export default class Filemanager {
-	app: any;
+	app: App;
+	settings: Settings;
 
-	constructor(app: any) {
+	constructor(app: App, settings: Settings) {
 		this.app = app;
+		this.settings = settings;
 	}
 
 	async updateFile(
 		filePath: TFile,
 		title: string,
 		content: string,
-		frontData: { [key: string]: any },
+		frontData: Record<string, string | number> = {},
 	) {
 		console.log(frontData);
-		const newName = `${frontData.channel}/${title}.md`;
+		const newName = `${this.settings.folder}/${frontData.channel}/${title}.md`;
 		await this.app.vault.modify(filePath, content);
 		await this.writeFrontmatter(filePath, frontData);
 		await this.app.vault.rename(filePath, newName);
@@ -31,7 +34,8 @@ export default class Filemanager {
 	async createFolder(folderPath: string) {
 		const normalizedFolderPath = folderPath.replace(/\\/g, "/");
 
-		let folder = this.app.vault.getAbstractFileByPath(normalizedFolderPath);
+		const folder =
+			this.app.vault.getAbstractFileByPath(normalizedFolderPath);
 
 		if (!folder) {
 			await this.app.vault.createFolder(normalizedFolderPath);
@@ -42,7 +46,7 @@ export default class Filemanager {
 		folderPath: string,
 		fileName: string,
 		content: string,
-		frontData: { [key: string]: any },
+		frontData: Record<string, string | number> = {},
 	) {
 		const normalizedFolderPath = folderPath.replace(/\\/g, "/");
 		const filePath = `${normalizedFolderPath}/${fileName}`;
@@ -56,7 +60,7 @@ export default class Filemanager {
 		folderPath: string,
 		fileName: string,
 		content: string,
-		frontData: { [key: string]: any },
+		frontData: Record<string, string | number> = {},
 	) {
 		const normalizedFolderPath = folderPath.replace(/\\/g, "/");
 		const filePath = `${normalizedFolderPath}/${fileName}`;
@@ -68,7 +72,7 @@ export default class Filemanager {
 		folderPath: string,
 		fileName: string,
 		content: string,
-		frontData: { [key: string]: any },
+		frontData: Record<string, string | number> = {},
 	) {
 		await this.createFolder(folderPath);
 		const file = await this.getFileByFolderPathAndFileName(
@@ -122,12 +126,12 @@ export default class Filemanager {
 
 	async getFrontmatterFromFile(
 		file: TFile,
-	): Promise<{ [key: string]: any } | null> {
-		let frontmatterData: { [key: string]: any } | null = null;
+	): Promise<Record<string, string | number>> {
+		let frontmatterData: Record<string, string | number> = {};
 
 		await this.app.fileManager.processFrontMatter(
 			file,
-			(frontmatter: any) => {
+			(frontmatter: Record<string, string | number>) => {
 				frontmatterData = frontmatter || null;
 			},
 		);
@@ -140,7 +144,7 @@ export default class Filemanager {
 
 		await this.app.fileManager.processFrontMatter(
 			file,
-			(frontmatter: any) => {
+			(frontmatter: Record<string, number | null>) => {
 				blockId = frontmatter.blockid || null;
 			},
 		);
@@ -148,13 +152,16 @@ export default class Filemanager {
 		return blockId;
 	}
 
-	async writeFrontmatter(file: TFile, frontData: { [key: string]: any }) {
+	async writeFrontmatter(
+		file: TFile,
+		frontData: Record<string, string | number>,
+	) {
 		if (!frontData) {
 			return;
 		}
 		await this.app.fileManager.processFrontMatter(
 			file,
-			async (frontmatter: any) => {
+			async (frontmatter: Record<string, string | number>) => {
 				Object.entries(frontData).forEach(([key, value]) => {
 					frontmatter[key] = value;
 				});
@@ -164,8 +171,8 @@ export default class Filemanager {
 
 	async getFilesWithBlockId(
 		folderPath: string,
-	): Promise<{ name: string; blockid: string }[]> {
-		const result: { name: string; blockid: string }[] = [];
+	): Promise<{ name: string; blockid: number }[]> {
+		const result: { name: string; blockid: number }[] = [];
 
 		const folder = this.app.vault.getAbstractFileByPath(folderPath);
 		if (!folder || !(folder instanceof TFolder)) {
@@ -179,12 +186,19 @@ export default class Filemanager {
 		for (const file of files) {
 			await this.app.fileManager.processFrontMatter(
 				file,
-				(frontmatter: any) => {
+				(frontmatter: Record<string, string | number>) => {
 					if (frontmatter.blockid) {
-						result.push({
-							name: file.name,
-							blockid: frontmatter.blockid,
-						});
+						const blockid = Number(frontmatter.blockid);
+						if (!isNaN(blockid)) {
+							result.push({
+								name: file.name,
+								blockid: blockid,
+							});
+						} else {
+							console.warn(
+								`Invalid blockid for file ${file.name}: ${frontmatter.blockid}`,
+							);
+						}
 					}
 				},
 			);
