@@ -9,12 +9,12 @@ import {
 
 import { ChannelsModal, BlocksModal } from "./lib/Modals";
 import FileHandler from "./lib/FileHandler";
-import Arenilla from "./lib/Arena";
+import Arena from "./lib/Arena";
 
 export default class ArenaManagerPlugin extends Plugin {
 	settings: Settings;
 	events: Events;
-	arena: Arenilla;
+	arena: Arena;
 	fileHandler: FileHandler;
 
 	createPermalinkFromTitle(title: string) {
@@ -58,6 +58,7 @@ export default class ArenaManagerPlugin extends Plugin {
 
 		this.events = new Events();
 		this.fileHandler = new FileHandler(this.app, this.settings);
+		this.arena = new Arena(this.settings);
 
 		this.addSettingTab(new TemplaterSettingTab(this));
 
@@ -76,7 +77,18 @@ export default class ArenaManagerPlugin extends Plugin {
 		this.addCommand({
 			id: "push-block",
 			name: "Push block to Are.na",
-			callback: this.pushBlock.bind(this),
+			checkCallback: (checking: boolean) => {
+				const currentFile = this.app.workspace.getActiveFile();
+
+				if (currentFile) {
+					if (!checking) {
+						this.pushBlock();
+					}
+					return true;
+				}
+
+				return false;
+			},
 		});
 
 		this.addCommand({
@@ -107,8 +119,6 @@ export default class ArenaManagerPlugin extends Plugin {
 	}
 
 	async getBlocksFromChannel() {
-		this.arena = new Arenilla(this.settings);
-
 		const callback = async (channel: Channel) => {
 			this.arena
 				.getBlocksFromChannel(channel.slug)
@@ -162,8 +172,6 @@ export default class ArenaManagerPlugin extends Plugin {
 	async pullBlock() {
 		const currentFile = this.app.workspace.getActiveFile();
 
-		this.arena = new Arenilla(this.settings);
-
 		if (!currentFile) {
 			new Notice("No active file open"); // TODO: Improve error message
 			return;
@@ -203,7 +211,6 @@ export default class ArenaManagerPlugin extends Plugin {
 
 	async pushBlock() {
 		const currentFile = this.app.workspace.getActiveFile();
-		this.arena = new Arenilla(this.settings);
 
 		if (!currentFile) {
 			new Notice("No active file open"); // TODO: Improve error message
@@ -218,14 +225,19 @@ export default class ArenaManagerPlugin extends Plugin {
 				const blockId = frontmatter.blockid;
 				if (blockId) {
 					const title = currentFile.basename;
-					this.arena
+
+					await this.arena
 						.updateBlockWithContentAndBlockID(
 							blockId,
 							title,
 							currentFileContent,
 							frontmatter,
 						)
-						.then((_response) => {
+						.then((response: any) => {
+							if (response.status === 422) {
+								new Notice(`Block not updated`);
+								return;
+							}
 							new Notice("Block updated");
 						})
 						.catch((error) => {
@@ -234,21 +246,32 @@ export default class ArenaManagerPlugin extends Plugin {
 						});
 				} else {
 					const callback = async (channel: Channel) => {
-						new Notice("New block created");
-						const response =
-							await this.arena.createBlockWithContentAndTitle(
+						await this.arena
+							.createBlockWithContentAndTitle(
 								currentFileContent,
 								currentFile.basename,
 								channel.slug,
 								frontmatter,
-							);
+							)
+							.then((response: any) => {
+								if (response.code === 422) {
+									new Notice(`Error: ${response.message}`);
+									return;
+								}
 
-						this.app.fileManager.processFrontMatter(
-							currentFile,
-							async (frontmatter) => {
-								frontmatter["blockid"] = response.id;
-							},
-						);
+								this.app.fileManager.processFrontMatter(
+									currentFile,
+									async (frontmatter) => {
+										frontmatter["blockid"] = response.id;
+									},
+								);
+
+								new Notice("Block updated");
+							})
+							.catch((error) => {
+								console.error(error);
+								new Notice("Block not updated");
+							});
 					};
 
 					const modal = new ChannelsModal(
@@ -271,7 +294,7 @@ export default class ArenaManagerPlugin extends Plugin {
 
 	async goToBlock() {
 		const currentFile = this.app.workspace.getActiveFile();
-		this.arena = new Arenilla(this.settings);
+
 		if (!currentFile) {
 			new Notice("No active file open"); // TODO: Improve error message
 			return;
@@ -289,8 +312,6 @@ export default class ArenaManagerPlugin extends Plugin {
 	}
 
 	async getBlockFromArena() {
-		this.arena = new Arenilla(this.settings);
-
 		const callback = async (channel: Channel) => {
 			const callback = async (block: Block, channel: Channel) => {
 				const filePath = `${block.generated_title}.md`;

@@ -6,13 +6,15 @@ Get and push content from Are.na to Obsidian.
 
 Currently this plugin offers 5 commands:
 
-| Command                   | Description                                                                             |
-| ------------------------- | --------------------------------------------------------------------------------------- |
-| `Get blocks from channel` | Get all the blocks from a channel and create a new note with the content of each block. |
-| `Pull block from Are.na`  | Updates the current open note with the content of a block from Are.na.                  |
-| `Push block to Are.na`    | Pushes the content of the current open note to a block in Are.na.                       |
-| `Get block from Are.na`   | Creates a new note with the content of a block from Are.na.                             |
-| `Go to block in Are.na`   | Opens the block in Are.na in the browser.                                               |
+| Command                   | Description                                                                                         |
+| ------------------------- | --------------------------------------------------------------------------------------------------- |
+| `Get blocks from channel` | Get all the blocks from a channel and create a new note in Obsidian with the content of each block. |
+| `Pull block from Are.na`  | Updates the current open note with the content of a block from Are.na.                              |
+| `Push block to Are.na`    | Pushes the content of the current open note to a block in Are.na.                                   |
+| `Get block from Are.na`   | Creates a new note with the content of a block from Are.na.                                         |
+| `Go to block in Are.na`   | Opens the block in the Are.na website.                                                              |
+
+To pull and push blocks your note will need to have a `blockid` property in the frontmatter.
 
 ### Installation
 
