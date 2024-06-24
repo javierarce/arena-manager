@@ -27,8 +27,10 @@ To pull and push blocks your note will need to have a `blockid` property in the 
 
 ### Limitations
 
+This plugin is still in development and has some known limitations:
+
 -   Image and attachment management is not currently supported.
 
 ### Contributing
 
-If you have any ideas or suggestions, feel free to open an issue or a pull request.
+If you have any ideas or suggestions, feel free to open an issue.
