@@ -11,7 +11,7 @@ import { ChannelsModal, BlocksModal } from "./lib/Modals";
 import FileHandler from "./lib/FileHandler";
 import Arenilla from "./lib/Arena";
 
-export default class ArenaSync extends Plugin {
+export default class ArenaManagerPlugin extends Plugin {
 	settings: Settings;
 	events: Events;
 	arena: Arenilla;

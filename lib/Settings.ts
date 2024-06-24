@@ -1,5 +1,6 @@
 import { Setting, PluginSettingTab } from "obsidian";
 import { ARENA_APP_URL } from "./types";
+import ArenaManagerPlugin from "main";
 
 export interface Settings {
 	accessToken: string;
@@ -14,7 +15,7 @@ export const DEFAULT_SETTINGS: Settings = {
 };
 
 export class TemplaterSettingTab extends PluginSettingTab {
-	constructor(private plugin: any) {
+	constructor(private plugin: ArenaManagerPlugin) {
 		super(app, plugin);
 		this.plugin = plugin;
 	}
@@ -29,7 +30,9 @@ export class TemplaterSettingTab extends PluginSettingTab {
 	}
 
 	addHeader() {
-		new Setting(this.containerEl).setHeading().setName("Settings");
+		new Setting(this.containerEl)
+			.setHeading()
+			.setName("Are.na Manager Settings");
 	}
 
 	addFolder() {
@@ -50,7 +53,7 @@ export class TemplaterSettingTab extends PluginSettingTab {
 	addUsername() {
 		new Setting(this.containerEl)
 			.setName("Username")
-			.setDesc("Your are.na username.")
+			.setDesc("Your are.na slug (e.g. 'username' in are.na/username).")
 			.addText((text) =>
 				text
 					.setPlaceholder("Enter your username")
@@ -64,11 +67,11 @@ export class TemplaterSettingTab extends PluginSettingTab {
 
 	addAccessToken() {
 		new Setting(this.containerEl)
-			.setName("Access Token")
+			.setName("Personal Access Token")
 			.setDesc(
 				createFragment((fragment) => {
 					fragment.append(
-						"Ceate an app and get the Access Token from ",
+						"Ceate an app and get the Personal Access Token from ",
 						fragment.createEl("a", {
 							text: ARENA_APP_URL,
 							href: ARENA_APP_URL,
@@ -78,7 +81,7 @@ export class TemplaterSettingTab extends PluginSettingTab {
 			)
 			.addText((text) =>
 				text
-					.setPlaceholder("Enter your secret")
+					.setPlaceholder("Enter your token")
 					.setValue(this.plugin.settings.accessToken)
 					.onChange(async (value) => {
 						this.plugin.settings.accessToken = value;
