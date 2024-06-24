@@ -1,6 +1,6 @@
 # Are.na Manager
 
-Get and push content from Are.na to Obsidian.
+Publish content from Obsidian to Are.na and the other way around.
 
 ### Commands
 
