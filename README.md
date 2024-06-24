@@ -1,6 +1,6 @@
 # Are.na Manager
 
-Publish content from Obsidian to Are.na and the other way around.
+Publish content from [Obsidian](https://obsidian.md) to [Are.na](https://www.are.na) and the other way around.
 
 ### Commands
 
