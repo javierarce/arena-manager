@@ -1,134 +1,330 @@
-import { App, Editor, MarkdownView, Modal, Notice, Plugin, PluginSettingTab, Setting } from 'obsidian';
+import { Notice, Plugin } from "obsidian";
 
-// Remember to rename these classes and interfaces!
+import {
+	Settings,
+	DEFAULT_SETTINGS,
+	TemplaterSettingTab,
+} from "./lib/Settings";
+import { ChannelsModal, BlocksModal } from "./lib/Modals";
+import FileHandler from "./lib/FileHandler";
+import { Channel, Block } from "./lib/interfaces";
+import Arenilla from "./lib/Arena";
 
-interface MyPluginSettings {
-	mySetting: string;
-}
+const ARENA_BLOCK_URL = "https://www.are.na/block/";
+const EMPTY_TEXT = "No block found. Press esc to dismiss.";
+const PLACEHOLDER_TEXT = "Type name to fuzzy find.";
+const INSTRUCTIONS = [
+	{ command: "↑↓", purpose: "to navigate" },
+	{ command: "Tab ↹", purpose: "to autocomplete" },
+	{ command: "↵", purpose: "to choose item" },
+	{ command: "esc", purpose: "to dismiss" },
+];
 
-const DEFAULT_SETTINGS: MyPluginSettings = {
-	mySetting: 'default'
-}
+export default class ArenaSync extends Plugin {
+	settings: Settings;
+	arena: Arenilla;
 
-export default class MyPlugin extends Plugin {
-	settings: MyPluginSettings;
+	createPermalinkFromTitle(title: string) {
+		return title.replace(/-\d+$/, "");
+	}
+
+	getFrontmatterFromBlock(block: Block, channelTitle?: string) {
+		const frontmatter: { [key: string]: any } = {};
+
+		frontmatter["blockid"] = block.id;
+
+		if (block.description) {
+			frontmatter["description"] = block.description;
+		}
+
+		if (block.user?.slug) {
+			frontmatter["user"] = block.user.slug;
+		}
+
+		// if (block.connected_by_user_slug) {
+		// 	frontmatter["connected by"] = block.connected_by_user_slug;
+		// }
+
+		if (block.source?.title) {
+			frontmatter["source title"] = block.source.title;
+		}
+
+		if (block.source?.url) {
+			frontmatter["source url"] = block.source.url;
+		}
+
+		if (channelTitle) {
+			frontmatter["channel"] = channelTitle;
+		}
+
+		return frontmatter;
+	}
 
 	async onload() {
 		await this.loadSettings();
 
-		// This creates an icon in the left ribbon.
-		const ribbonIconEl = this.addRibbonIcon('dice', 'Sample Plugin', (evt: MouseEvent) => {
-			// Called when the user clicks the icon.
-			new Notice('This is a notice!');
-		});
-		// Perform additional things with the ribbon
-		ribbonIconEl.addClass('my-plugin-ribbon-class');
+		this.addSettingTab(new TemplaterSettingTab(this));
 
-		// This adds a status bar item to the bottom of the app. Does not work on mobile apps.
-		const statusBarItemEl = this.addStatusBarItem();
-		statusBarItemEl.setText('Status Bar Text');
-
-		// This adds a simple command that can be triggered anywhere
 		this.addCommand({
-			id: 'open-sample-modal-simple',
-			name: 'Open sample modal (simple)',
-			callback: () => {
-				new SampleModal(this.app).open();
-			}
+			id: "create-blocks-from-channel",
+			name: "Create blocks from channel",
+			callback: this.createBlocksFromChannel.bind(this),
 		});
-		// This adds an editor command that can perform some operation on the current editor instance
+
 		this.addCommand({
-			id: 'sample-editor-command',
-			name: 'Sample editor command',
-			editorCallback: (editor: Editor, view: MarkdownView) => {
-				console.log(editor.getSelection());
-				editor.replaceSelection('Sample Editor Command');
-			}
+			id: "pull-block",
+			name: "Pull block from Are.na",
+			callback: this.pullBlock.bind(this),
 		});
-		// This adds a complex command that can check whether the current state of the app allows execution of the command
+
 		this.addCommand({
-			id: 'open-sample-modal-complex',
-			name: 'Open sample modal (complex)',
-			checkCallback: (checking: boolean) => {
-				// Conditions to check
-				const markdownView = this.app.workspace.getActiveViewOfType(MarkdownView);
-				if (markdownView) {
-					// If checking is true, we're simply "checking" if the command can be run.
-					// If checking is false, then we want to actually perform the operation.
-					if (!checking) {
-						new SampleModal(this.app).open();
-					}
-
-					// This command will only show up in Command Palette when the check function returns true
-					return true;
-				}
-			}
+			id: "push-block",
+			name: "Push block to Are.na",
+			callback: this.pushBlock.bind(this),
 		});
 
-		// This adds a settings tab so the user can configure various aspects of the plugin
-		this.addSettingTab(new SampleSettingTab(this.app, this));
-
-		// If the plugin hooks up any global DOM events (on parts of the app that doesn't belong to this plugin)
-		// Using this function will automatically remove the event listener when this plugin is disabled.
-		this.registerDomEvent(document, 'click', (evt: MouseEvent) => {
-			console.log('click', evt);
+		this.addCommand({
+			id: "go-to-block",
+			name: "Go to block",
+			callback: this.goToBlock.bind(this),
 		});
 
-		// When registering intervals, this function will automatically clear the interval when the plugin is disabled.
-		this.registerInterval(window.setInterval(() => console.log('setInterval'), 5 * 60 * 1000));
+		this.addCommand({
+			id: "get-block-from-arena",
+			name: "Get block from Are.na",
+			callback: this.getBlockFromArena.bind(this),
+		});
 	}
 
-	onunload() {
-
-	}
+	onunload() {}
 
 	async loadSettings() {
-		this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
+		this.settings = Object.assign(
+			{},
+			DEFAULT_SETTINGS,
+			await this.loadData(),
+		);
 	}
 
 	async saveSettings() {
 		await this.saveData(this.settings);
 	}
-}
 
-class SampleModal extends Modal {
-	constructor(app: App) {
-		super(app);
+	async createBlocksFromChannel() {
+		this.arena = new Arenilla(this.settings);
+
+		const callback = async (channel: Channel) => {
+			this.arena
+				.getBlocksFromChannel(channel.slug)
+				.then(async (blocks) => {
+					for (const block of blocks) {
+						const filePath = `${block.generated_title}.md`;
+
+						const frontData = this.getFrontmatterFromBlock(
+							block,
+							channel.title,
+						);
+
+						const slug = this.createPermalinkFromTitle(
+							channel.title,
+						);
+
+						const content = block.content;
+
+						try {
+							await new FileHandler(this.app).writeFile(
+								`${this.settings.folder}/${slug}`,
+								filePath,
+								content,
+								frontData,
+							);
+						} catch (error) {
+							new Notice("Error creating file");
+							console.error(error);
+						}
+					}
+
+					new Notice(`${channel.length} files created`);
+				});
+		};
+
+		const channels = await this.arena.getChannelsFromUser();
+		const modal = new ChannelsModal(
+			this.app,
+			channels,
+			this.settings,
+			false,
+			callback,
+		);
+
+		modal.emptyStateText = EMPTY_TEXT;
+		modal.setPlaceholder(PLACEHOLDER_TEXT);
+		modal.setInstructions(INSTRUCTIONS);
+		modal.open();
 	}
 
-	onOpen() {
-		const {contentEl} = this;
-		contentEl.setText('Woah!');
+	async pullBlock() {
+		const currentFile = this.app.workspace.getActiveFile();
+
+		this.arena = new Arenilla(this.settings);
+
+		if (!currentFile) {
+			new Notice("No active file open"); // TODO: Improve error message
+			return;
+		}
+
+		const frontMatter = await new FileHandler(
+			this.app,
+		).getFrontmatterFromFile(currentFile);
+
+		const blockId = frontMatter?.blockid;
+
+		if (blockId) {
+			this.arena.getBlockWithID(blockId).then(async (block) => {
+				const title = block.generated_title;
+				const content = block.content;
+				const channelTitle = frontMatter?.channel;
+				const frontData = this.getFrontmatterFromBlock(
+					block,
+					channelTitle,
+				);
+				new FileHandler(this.app).updateFile(
+					currentFile,
+					title,
+					content,
+					frontData,
+				);
+			});
+		} else {
+			new Notice("No block id found in frontmatter");
+		}
 	}
 
-	onClose() {
-		const {contentEl} = this;
-		contentEl.empty();
+	async pushBlock() {
+		const currentFile = this.app.workspace.getActiveFile();
+		this.arena = new Arenilla(this.settings);
+
+		if (!currentFile) {
+			new Notice("No active file open"); // TODO: Improve error message
+			return;
+		}
+
+		const currentFileContent = await this.app.vault.read(currentFile);
+
+		this.app.fileManager.processFrontMatter(
+			currentFile,
+			async (frontmatter) => {
+				const blockId = frontmatter.blockid;
+				if (blockId) {
+					const title = currentFile.basename;
+					this.arena
+						.updateBlockWithContentAndBlockID(
+							blockId,
+							title,
+							currentFileContent,
+							frontmatter,
+						)
+						.then((_response) => {
+							new Notice("Block updated");
+						})
+						.catch((error) => {
+							console.error(error);
+							new Notice("Block not updated");
+						});
+				} else {
+					const callback = async (channel: Channel) => {
+						new Notice("New block created");
+						const response =
+							await this.arena.createBlockWithContentAndTitle(
+								currentFileContent,
+								currentFile.basename,
+								channel.slug,
+								frontmatter,
+							);
+
+						this.app.fileManager.processFrontMatter(
+							currentFile,
+							async (frontmatter) => {
+								frontmatter["blockid"] = response.id;
+							},
+						);
+					};
+
+					const channels = await this.arena.getChannelsFromUser();
+					const modal = new ChannelsModal(
+						this.app,
+						channels,
+						this.settings,
+						true,
+						callback,
+					);
+
+					modal.emptyStateText = EMPTY_TEXT;
+					modal.setPlaceholder(PLACEHOLDER_TEXT);
+					modal.setInstructions(INSTRUCTIONS);
+					modal.open();
+				}
+			},
+		);
 	}
-}
 
-class SampleSettingTab extends PluginSettingTab {
-	plugin: MyPlugin;
+	async goToBlock() {
+		const currentFile = this.app.workspace.getActiveFile();
+		this.arena = new Arenilla(this.settings);
+		if (!currentFile) {
+			new Notice("No active file open"); // TODO: Improve error message
+			return;
+		}
 
-	constructor(app: App, plugin: MyPlugin) {
-		super(app, plugin);
-		this.plugin = plugin;
+		this.app.fileManager.processFrontMatter(currentFile, (frontmatter) => {
+			const blockId = frontmatter.blockid;
+			if (blockId) {
+				const url = `${ARENA_BLOCK_URL}${blockId}`;
+				window.open(url, "_blank");
+			} else {
+				new Notice("No block id found in frontmatter");
+			}
+		});
 	}
 
-	display(): void {
-		const {containerEl} = this;
+	async getBlockFromArena() {
+		this.arena = new Arenilla(this.settings);
 
-		containerEl.empty();
+		const callback = async (channel: Channel) => {
+			const callback = async (block: Block, channel: Channel) => {
+				console.log(block, channel);
+				const filePath = `${block.generated_title}.md`;
+				const frontData = this.getFrontmatterFromBlock(block);
+				const slug = this.createPermalinkFromTitle(channel.title);
 
-		new Setting(containerEl)
-			.setName('Setting #1')
-			.setDesc('It\'s a secret')
-			.addText(text => text
-				.setPlaceholder('Enter your secret')
-				.setValue(this.plugin.settings.mySetting)
-				.onChange(async (value) => {
-					this.plugin.settings.mySetting = value;
-					await this.plugin.saveSettings();
-				}));
+				const content = block.content;
+				await new FileHandler(this.app).writeFile(
+					`${this.settings.folder}/${slug}`,
+					filePath,
+					content,
+					frontData,
+				);
+			};
+
+			const blocks = await this.arena.getBlocksFromChannel(channel.slug);
+
+			const modal = new BlocksModal(this.app, blocks, channel, callback);
+			modal.open();
+		};
+
+		const channels = await this.arena.getChannelsFromUser();
+
+		const modal = new ChannelsModal(
+			this.app,
+			channels,
+			this.settings,
+			false,
+			callback,
+		);
+
+		modal.emptyStateText = EMPTY_TEXT;
+		modal.setPlaceholder(PLACEHOLDER_TEXT);
+		modal.setInstructions(INSTRUCTIONS);
+		modal.open();
 	}
 }
