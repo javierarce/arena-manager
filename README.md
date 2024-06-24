@@ -1,6 +1,6 @@
 # Are.na Manager
 
-Manage your Are.na account from Obsidian.
+Get and push content from Are.na to Obsidian.
 
 ### Commands
 
@@ -14,12 +14,19 @@ Currently this plugin offers 5 commands:
 | `Get block from Are.na`   | Creates a new note with the content of a block from Are.na.                             |
 | `Go to block in Are.na`   | Opens the block in Are.na in the browser.                                               |
 
-### Configuration
+### Installation
 
--   **accessToken**: Your Are.na access token,
--   **username**: your Are.na slug (e.g. `username` in `https://www.are.na/username`),
--   **folder**: Folder where you want to store the notes.
+1. Install the plugin from the community or build it from source.
+2. Create a new Are.na application at [https://dev.are.na/oauth/applications](https://dev.are.na/oauth/applications) and copy the access token.
+3. Open the settings of the plugin and set the following options:
+    - **Personal access token**: Your Are.na Personal Access Token,
+    - **Username**: your Are.na slug (e.g. `username` in `https://www.are.na/username`),
+    - **Folder**: Folder where you want to store the notes (by default the folder is called `are.na`).
 
 ### Limitations
 
 -   Image and attachment management is not currently supported.
+
+### Contributing
+
+If you have any ideas or suggestions, feel free to open an issue or a pull request.

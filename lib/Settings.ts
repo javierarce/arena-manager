@@ -10,7 +10,7 @@ export interface Settings {
 export const DEFAULT_SETTINGS: Settings = {
 	accessToken: "",
 	username: "",
-	folder: "arena",
+	folder: "are.na",
 };
 
 export class TemplaterSettingTab extends PluginSettingTab {
