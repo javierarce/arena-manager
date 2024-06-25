@@ -52,7 +52,7 @@ export class ChannelsModal extends FuzzySuggestModal<Channel> {
 
 	renderSuggestion(match: FuzzyMatch<Channel>, el: HTMLElement): void {
 		if (match.item.status === "private") {
-			el.addClass("is-private");
+			el.createEl("span").addClass("icon-lock");
 		}
 		el.createEl("span", { text: match.item.title });
 		el.createEl("span", { text: match.item.length.toString() }).addClass(

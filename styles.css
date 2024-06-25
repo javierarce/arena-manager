@@ -12,12 +12,32 @@ If your plugin does not need CSS, delete this file.
 	gap: 0.4em;
 	align-items: center;
 }
-.arena-manager-modal .suggestion-item.is-private:before {
-	content: "";
-	width: 8px;
+.icon-lock {
+	box-sizing: border-box;
+	position: relative;
+	display: block;
+	transform: scale(0.8);
+	width: 10px;
 	height: 8px;
-	background-color: #f8f9fa;
-	border-radius: 50%;
+	border: 2px solid;
+	border-top-right-radius: 50%;
+	border-top-left-radius: 50%;
+	border-bottom: transparent;
+	margin-top: -12px;
+	opacity: 0.5;
+}
+.icon-lock::after {
+	content: "";
+	display: block;
+	box-sizing: border-box;
+	position: absolute;
+	width: 12px;
+	height: 8px;
+	border-radius: 1px;
+	border: 2px solid transparent;
+	box-shadow: 0 0 0 2px;
+	left: -3px;
+	top: 8px;
 }
 .arena-manager-modal span.count {
 	opacity: 0.5;
