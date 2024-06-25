@@ -63,8 +63,10 @@ export class ChannelsModal extends FuzzySuggestModal<Channel> {
 	getItems(): Channel[] {
 		if (this.showEmptyChannels) {
 			return this.channels;
-		} else {
+		} else if (this.channels) {
 			return this.channels.filter((channel) => channel.length > 0);
+		} else {
+			return [];
 		}
 	}
 

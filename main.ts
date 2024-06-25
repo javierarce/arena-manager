@@ -185,13 +185,11 @@ export default class ArenaManagerPlugin extends Plugin {
 							channel.title,
 						);
 
-						const content = block.content;
-
 						try {
 							await this.fileHandler.writeFile(
 								`${this.settings.folder}/${slug}`,
 								fileName,
-								content,
+								block.content,
 								frontData,
 							);
 						} catch (error) {
