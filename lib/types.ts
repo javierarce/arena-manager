@@ -10,6 +10,7 @@ export interface Channel {
 	status: string;
 	class: string;
 	base_class: string;
+	contents: Block[];
 }
 
 export interface Provider {
