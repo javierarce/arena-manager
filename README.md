@@ -30,18 +30,21 @@ Currently this plugin offers 5 commands:
 
 When you get a block from Are.na, the plugin will add some frontmatter automatically to allow syncronizing your note and the block.
 
-| Property | Description                                 |
-| -------- | ------------------------------------------- |
-| blockid  | the id of the block in Are.na               |
-| class    | the class of the block in Are.na            |
-| user     | the user who created the block in Are.na    |
-| channel  | the channel where the block was pulled from |
+| Property     | Description                                  |
+| ------------ | -------------------------------------------- |
+| blockid      | the id of the block in Are.na                |
+| class        | the class of the block in Are.na (e.g. Link) |
+| user         | the user who created the block in Are.na     |
+| channel      | the channel where the block was pulled from  |
+| source title | the title of the block's source              |
+| source url   | the url of the block's source                |
 
 ### Limitations
 
 This plugin is still in development and has some known limitations:
 
 -   Image and attachment management is not currently supported.
+-   If a channel includes other channels, their contents will not be pulled.
 
 ### Contributing
 
