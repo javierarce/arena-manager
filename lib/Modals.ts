@@ -118,6 +118,12 @@ export class BlocksModal extends FuzzySuggestModal<Block> {
 	}
 
 	getItems(): Block[] {
+		if (this.blocks) {
+			return this.blocks.filter(
+				(block) =>
+					block.class !== "Channel" && block.class !== "Attachment",
+			);
+		}
 		return this.blocks;
 	}
 

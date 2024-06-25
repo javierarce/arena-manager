@@ -172,6 +172,12 @@ export default class ArenaManagerPlugin extends Plugin {
 				.getBlocksFromChannel(channel.slug)
 				.then(async (blocks) => {
 					for (const block of blocks) {
+						if (
+							block.class === "Channel" ||
+							block.class === "Attachment"
+						) {
+							continue;
+						}
 						const fileName = block.generated_title
 							? block.generated_title
 							: block.title;
@@ -370,6 +376,7 @@ export default class ArenaManagerPlugin extends Plugin {
 				const slug = this.createPermalinkFromTitle(channel.title);
 
 				let content = block.content;
+
 				if (block.class === "Image") {
 					const imageUrl = block.image?.display.url;
 					content = `![](${imageUrl})`;
