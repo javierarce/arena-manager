@@ -168,6 +168,8 @@ export default class ArenaManagerPlugin extends Plugin {
 
 	async getBlocksFromChannel() {
 		const callback = async (channel: Channel) => {
+			let notesCreated = 0;
+
 			this.arena
 				.getBlocksFromChannel(channel.slug)
 				.then(async (blocks) => {
@@ -198,13 +200,16 @@ export default class ArenaManagerPlugin extends Plugin {
 								block.content,
 								frontData,
 							);
+							notesCreated++;
 						} catch (error) {
 							console.error(error);
 							new Notice("Error creating file");
 						}
 					}
 
-					new Notice(`${channel.length} notes created`);
+					new Notice(
+						`${notesCreated} note${notesCreated > 1 ? "s" : ""} created`,
+					);
 				});
 		};
 
