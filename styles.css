@@ -1,18 +1,12 @@
-/*
-
-This CSS file will be included with your plugin, and
-available in the app when your plugin is enabled.
-
-If your plugin does not need CSS, delete this file.
-
-*/
-
 .arena-manager-modal .suggestion-item {
 	display: flex;
 	gap: 0.4em;
 	align-items: center;
 }
-.icon-lock {
+.arena-manager-modal span.count {
+	opacity: 0.5;
+}
+.arena-manager-modal .icon-lock {
 	box-sizing: border-box;
 	position: relative;
 	display: block;
@@ -26,7 +20,7 @@ If your plugin does not need CSS, delete this file.
 	margin-top: -12px;
 	opacity: 0.5;
 }
-.icon-lock::after {
+.arena-manager-modal .icon-lock::after {
 	content: "";
 	display: block;
 	box-sizing: border-box;
@@ -38,7 +32,4 @@ If your plugin does not need CSS, delete this file.
 	box-shadow: 0 0 0 2px;
 	left: -3px;
 	top: 8px;
-}
-.arena-manager-modal span.count {
-	opacity: 0.5;
 }
