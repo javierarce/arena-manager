@@ -200,7 +200,7 @@ export default class ArenaManagerPlugin extends Plugin {
 						}
 					}
 
-					new Notice(`${channel.length} files created`);
+					new Notice(`${channel.length} notes created`);
 				});
 		};
 

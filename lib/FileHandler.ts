@@ -1,5 +1,6 @@
 import { App, TFile, TFolder } from "obsidian";
 import { Settings } from "./Settings";
+
 export default class Filemanager {
 	app: App;
 	settings: Settings;
