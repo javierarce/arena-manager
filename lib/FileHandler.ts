@@ -55,9 +55,11 @@ export default class Filemanager {
 		const normalizedFolderPath = folderPath.replace(/\\/g, "/");
 		const filePath = `${normalizedFolderPath}/${this.getSafeFilename(fileName)}.md`;
 
-		const file = this.app.vault.getAbstractFileByPath(filePath) as TFile;
-		await this.app.vault.modify(file, content);
-		await this.writeFrontmatter(file, frontData);
+		const file = this.app.vault.getFileByPath(filePath);
+		if (file) {
+			await this.app.vault.modify(file, content);
+			await this.writeFrontmatter(file, frontData);
+		}
 	}
 
 	async createFileWithFrontmatter(
@@ -172,6 +174,9 @@ export default class Filemanager {
 			},
 		);
 	}
+	isMarkdownFile(file: unknown): file is TFile {
+		return file instanceof TFile && file.extension === "md";
+	}
 
 	async getFilesWithBlockId(
 		folderPath: string,
@@ -183,9 +188,7 @@ export default class Filemanager {
 			throw new Error("Directory not found or not a folder");
 		}
 
-		const files = folder.children.filter(
-			(file) => file instanceof TFile && file.extension === "md",
-		) as TFile[];
+		const files = folder.children.filter(this.isMarkdownFile);
 
 		for (const file of files) {
 			await this.app.fileManager.processFrontMatter(
