@@ -322,6 +322,10 @@ export default class ArenaManagerPlugin extends Plugin {
 									currentFile,
 									async (frontmatter) => {
 										frontmatter["blockid"] = response.id;
+										frontmatter["channel"] =
+											this.createPermalinkFromTitle(
+												channel.title,
+											);
 									},
 								);
 
