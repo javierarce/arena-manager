@@ -176,7 +176,8 @@ export default class ArenaManagerPlugin extends Plugin {
 					for (const block of blocks) {
 						if (
 							block.class === "Channel" ||
-							block.class === "Attachment"
+							block.class === "Attachment" ||
+							block.class === "Media"
 						) {
 							continue;
 						}
@@ -284,6 +285,12 @@ export default class ArenaManagerPlugin extends Plugin {
 				const blockId = frontmatter.blockid;
 				if (blockId) {
 					const title = currentFile.basename;
+
+					if (frontmatter.user !== this.settings.username) {
+						return new Notice(
+							`You don't have permission to update ${frontmatter.user}'s block`,
+						);
+					}
 
 					await this.arena
 						.updateBlockWithContentAndBlockID(
