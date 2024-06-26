@@ -1,4 +1,4 @@
-import { App, TFile, TFolder } from "obsidian";
+import { App, TFile, TAbstractFile, TFolder } from "obsidian";
 import { Settings } from "./Settings";
 
 export default class Filemanager {
@@ -26,13 +26,13 @@ export default class Filemanager {
 		await this.app.vault.rename(filePath, newName);
 	}
 
-	async getFileByFolderPathAndFileName(
+	getFileByFolderPathAndFileName(
 		folderPath: string,
 		fileName: string,
-	): Promise<TFile> {
+	): TAbstractFile | null {
 		const normalizedFolderPath = folderPath.replace(/\\/g, "/");
 		const filePath = `${normalizedFolderPath}/${this.getSafeFilename(fileName)}.md`;
-		return this.app.vault.getAbstractFileByPath(filePath) as TFile;
+		return this.app.vault.getAbstractFileByPath(filePath);
 	}
 
 	async createFolder(folderPath: string) {
