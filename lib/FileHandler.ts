@@ -32,7 +32,7 @@ export default class Filemanager {
 	): Promise<TFile> {
 		const normalizedFolderPath = folderPath.replace(/\\/g, "/");
 		const filePath = `${normalizedFolderPath}/${this.getSafeFilename(fileName)}.md`;
-		return (await this.app.vault.getAbstractFileByPath(filePath)) as TFile;
+		return this.app.vault.getAbstractFileByPath(filePath) as TFile;
 	}
 
 	async createFolder(folderPath: string) {
