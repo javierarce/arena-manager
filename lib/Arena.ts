@@ -1,3 +1,4 @@
+import { requestUrl } from "obsidian";
 import { Channel, Block } from "./types";
 import { Settings } from "./Settings";
 
@@ -11,15 +12,14 @@ export default class Arenilla {
 	}
 
 	async getChannelsFromUser(): Promise<Channel[]> {
-		return fetch(
-			`https://api.are.na/v2/users/${this.settings.username}/channels?v=${Date.now()}`,
-			{
-				headers: {
-					Authorization: `Bearer ${this.settings.accessToken}`,
-				},
+		const url = `https://api.are.na/v2/users/${this.settings.username}/channels?v=${Date.now()}`;
+		return requestUrl({
+			url,
+			headers: {
+				Authorization: `Bearer ${this.settings.accessToken}`,
 			},
-		)
-			.then((response) => response.json())
+		})
+			.then((response) => response.json)
 			.then((data) => {
 				return data.channels;
 			});
@@ -39,7 +39,9 @@ export default class Arenilla {
 			const description = frontmatter.description;
 			content = content.replace(/---[\s\S]*?---\n/g, "");
 
-			const response = await fetch(`https://api.are.na/v2/blocks/${id}`, {
+			const url = `https://api.are.na/v2/blocks/${id}`;
+			const response = await requestUrl({
+				url,
 				method: "PUT",
 				headers: {
 					Authorization: `Bearer ${this.settings.accessToken}`,
@@ -60,27 +62,28 @@ export default class Arenilla {
 	}
 
 	async getBlockWithID(id: number): Promise<Block> {
-		return fetch(`https://api.are.na/v2/blocks/${id}?v=${Date.now()}`, {
+		const url = `https://api.are.na/v2/blocks/${id}?v=${Date.now()}`;
+		return requestUrl({
+			url,
 			headers: {
 				Authorization: `Bearer ${this.settings.accessToken}`,
 			},
 		})
-			.then((response) => response.json())
+			.then((response) => response.json)
 			.then((data) => {
 				return data;
 			});
 	}
 
 	async getBlocksFromChannel(channelSlug: string): Promise<Block[]> {
-		return fetch(
-			`https://api.are.na/v2/channels/${channelSlug}/contents?per=${BLOCKS_LIMIT}&v=${Date.now()}`,
-			{
-				headers: {
-					Authorization: `Bearer ${this.settings.accessToken}`,
-				},
+		const url = `https://api.are.na/v2/channels/${channelSlug}/contents?per=${BLOCKS_LIMIT}&v=${Date.now()}`;
+		return requestUrl({
+			url,
+			headers: {
+				Authorization: `Bearer ${this.settings.accessToken}`,
 			},
-		)
-			.then((response) => response.json())
+		})
+			.then((response) => response.json)
 			.then((data) => {
 				return data.contents;
 			});
@@ -96,7 +99,9 @@ export default class Arenilla {
 		const description = frontmatter.description;
 		content = content.replace(/---[\s\S]*?---\n/g, "");
 
-		return fetch(`https://api.are.na/v2/channels/${channelSlug}/blocks`, {
+		const url = `https://api.are.na/v2/channels/${channelSlug}/blocks`;
+		return requestUrl({
+			url,
 			method: "POST",
 			headers: {
 				Authorization: `Bearer ${this.settings.accessToken}`,
@@ -107,6 +112,6 @@ export default class Arenilla {
 				content,
 				description,
 			}),
-		}).then((response) => response.json());
+		}).then((response) => response.json);
 	}
 }
