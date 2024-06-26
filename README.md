@@ -43,8 +43,9 @@ When you get a block from Are.na, the plugin will add some frontmatter automatic
 
 This plugin is still in development and has some known limitations:
 
--   Image and attachment management is not currently supported.
+-   Media and attachment management is not currently supported.
 -   If a channel includes other channels, their contents will not be pulled.
+-   Pulling a block will automatically place it in the corresponding folder based on the Are.na's channel name.
 
 ### Contributing
 
