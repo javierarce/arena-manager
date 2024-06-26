@@ -1,4 +1,4 @@
-import { App, TFile, TAbstractFile, TFolder } from "obsidian";
+import { App, TFile, TFolder } from "obsidian";
 import { Settings } from "./Settings";
 
 export default class Filemanager {
@@ -29,10 +29,10 @@ export default class Filemanager {
 	getFileByFolderPathAndFileName(
 		folderPath: string,
 		fileName: string,
-	): TAbstractFile | null {
+	): TFile | null {
 		const normalizedFolderPath = folderPath.replace(/\\/g, "/");
 		const filePath = `${normalizedFolderPath}/${this.getSafeFilename(fileName)}.md`;
-		return this.app.vault.getAbstractFileByPath(filePath);
+		return this.app.vault.getFileByPath(filePath);
 	}
 
 	async createFolder(folderPath: string) {
@@ -81,10 +81,7 @@ export default class Filemanager {
 		frontData: Record<string, string | number> = {},
 	) {
 		await this.createFolder(folderPath);
-		const file = await this.getFileByFolderPathAndFileName(
-			folderPath,
-			fileName,
-		);
+		const file = this.getFileByFolderPathAndFileName(folderPath, fileName);
 
 		if (!file) {
 			await this.createFileWithFrontmatter(
@@ -106,7 +103,7 @@ export default class Filemanager {
 			} else {
 				const newFilename = `${fileName.split(".")[0]}-${frontData.blockid}.md`;
 
-				const newFile = await this.getFileByFolderPathAndFileName(
+				const newFile = this.getFileByFolderPathAndFileName(
 					folderPath,
 					newFilename,
 				);
