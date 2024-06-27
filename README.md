@@ -19,12 +19,15 @@ Currently this plugin offers 5 commands:
 > [!IMPORTANT]  
 > The plugin is not yet available in the Obsidian community, so you need to install it manually for now
 
-1. Install the plugin from source.
-2. Create a new Are.na application at [https://dev.are.na/oauth/applications](https://dev.are.na/oauth/applications) and copy the access token.
-3. Open the settings of the plugin and set the following options:
-    - **Personal access token**: Your Are.na Personal Access Token,
+1. Clone this repository into your Obsidian plugins folder.
+2. Run `npm install` in the plugin folder to install the dependencies.
+3. Run `npm run build` to build the plugin.
+4. Enable the plugin in Obsidian settings.
+5. Create a new Are.na application at [https://dev.are.na/oauth/applications](https://dev.are.na/oauth/applications) and copy the access token.
+6. Open the plugin settings page and set the following options
+    - **Personal Access Token**: Your Are.na Personal Access Token,
     - **Username**: your Are.na slug (e.g. `username` in `https://www.are.na/username`),
-    - **Folder**: Folder where you want to store the notes (by default the folder is called `are.na`).
+    - **Folder**: Folder where you want to store the notes (the folder is called `arena` by default).
 
 ### Frontmatter structure
 
@@ -39,13 +42,14 @@ When you get a block from Are.na, the plugin will add some frontmatter automatic
 | source title | the title of the block's source              |
 | source url   | the url of the block's source                |
 
-### Limitations
+### Roadmap
 
-This plugin is still in development and has some known limitations:
+This plugin is still in development and has some known limitations that I’d like to address in future releases:
 
--   Media and attachment management is not currently supported.
--   If a channel includes other channels, their contents will not be pulled.
--   Pulling a block will automatically place it in the corresponding folder based on the Are.na's channel name.
+-   [ ] Media and attachment support in blocks.
+-   [ ] Pulling blocks to folders outside of the Are.na directory designated in the settings.
+-   [ ] Pulling blocks from other users’ channels.
+-   [ ] Creating new channels from the content of a note or directory
 
 ### Contributing
 
