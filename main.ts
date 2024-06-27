@@ -169,6 +169,7 @@ export default class ArenaManagerPlugin extends Plugin {
 	async getBlocksFromChannel() {
 		const callback = async (channel: Channel) => {
 			let notesCreated = 0;
+			new Notice(`Getting blocks from ${channel.title}…`);
 
 			this.arena
 				.getBlocksFromChannel(channel.slug)
