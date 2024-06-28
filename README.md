@@ -7,7 +7,7 @@ Publish content from [Obsidian](https://obsidian.md) to [Are.na](https://www.are
 Currently this plugin offers 5 commands:
 
 | Command                   | Description                                                                                         |
-| ------------------------- | --------------------------------------------------------------------------------------------------- |
+|:------------------------- |:--------------------------------------------------------------------------------------------------- |
 | `Get blocks from channel` | Get all the blocks from a channel and create a new note in Obsidian with the content of each block. |
 | `Pull block`              | Updates the current open note with the content of a block from Are.na.                              |
 | `Push note`               | Pushes the content of the current open note to a block in Are.na.                                   |
