@@ -4,7 +4,7 @@ import { Settings } from "./Settings";
 
 const BLOCKS_LIMIT = 1000;
 
-export default class Arenilla {
+export default class Arena {
 	settings: Settings;
 
 	constructor(settings: Settings) {
