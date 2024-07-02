@@ -60,11 +60,11 @@ export class TemplaterSettingTab extends PluginSettingTab {
 
 	addAccessToken() {
 		new Setting(this.containerEl)
-			.setName("Personal Access Token")
+			.setName("Access token")
 			.setDesc(
 				createFragment((fragment) => {
 					fragment.append(
-						"Ceate an app and get the Personal Access Token from ",
+						"Ceate an app and get the 'Personal Access Token' from ",
 						fragment.createEl("a", {
 							text: ARENA_APP_URL,
 							href: ARENA_APP_URL,
