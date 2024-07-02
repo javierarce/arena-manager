@@ -1,4 +1,4 @@
-import { App, TFile, TFolder } from "obsidian";
+import { App, TFile, TAbstractFile, TFolder } from "obsidian";
 import { Settings } from "./Settings";
 
 export default class Filemanager {
@@ -171,7 +171,7 @@ export default class Filemanager {
 			},
 		);
 	}
-	isMarkdownFile(file: unknown): file is TFile {
+	isMarkdownFile(file: TAbstractFile): file is TFile {
 		return file instanceof TFile && file.extension === "md";
 	}
 
