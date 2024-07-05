@@ -17,13 +17,12 @@ Currently this plugin offers 5 commands:
 ### Installation
 
 1. [Install the plugin](https://obsidian.md/plugins?search=are.na%20manager) and enable it in Obsidian settings.
-2. Create a new Are.na application at [https://dev.are.na/oauth/applications](https://dev.are.na/oauth/applications). You can use any valid URL in the "Redirect URI
-" field (for example, `https://api.are.na/v2` or the URL of your blog).
+2. Create a new Are.na application at [https://dev.are.na/oauth/applications](https://dev.are.na/oauth/applications). You can use any valid URL in the "Redirect URI" field (for example, `https://are.na` or your blog's URL).
 3. Submit the form and copy the "Personal Access Token".
-4. Open the plugin settings page and set the following options
-    - **Personal Access Token**: Your Are.na Personal Access Token,
-    - **Username**: your Are.na slug (e.g. `username` in `https://www.are.na/username`),
-    - **Folder**: Folder where you want to store the notes (the folder is called `arena` by default).
+4. Open the plugin settings page and set the following options:
+    - **Personal Access Token**: Your Are.na Personal Access Token.
+    - **Username**: Your Are.na slug (e.g., `username` in `https://www.are.na/username`).
+    - **Folder**: The folder where you want to store the notes (the folder is called `arena` by default).
 5. Use any of the commands above to interact with your Are.na blocks and channels.
 
 ### Frontmatter structure
