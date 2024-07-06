@@ -144,7 +144,7 @@ export default class Commands {
 
 						let content = block.content;
 
-						if (block.class === "Image") {
+						if (block.class === "Image" || block.class === "Link") {
 							const imageUrl = block.image?.display.url;
 							content = `![](${imageUrl})`;
 						}
@@ -202,7 +202,7 @@ export default class Commands {
 				const title = block.generated_title;
 				let content = block.content;
 
-				if (block.class === "Image") {
+				if (block.class === "Image" || block.class === "Link") {
 					const imageUrl = block.image?.display.url;
 					content = `![](${imageUrl})`;
 				}
@@ -246,7 +246,6 @@ export default class Commands {
 	async getBlockFromArena() {
 		const onSelectChannel = async (channel: Channel) => {
 			const onSelectBlock = async (block: Block, channel: Channel) => {
-				console.log(block);
 				const fileName = `${block.generated_title}`;
 				const frontData = Utils.getFrontmatterFromBlock(
 					block,
@@ -256,7 +255,7 @@ export default class Commands {
 
 				let content = block.content;
 
-				if (block.class === "Image") {
+				if (block.class === "Image" || block.class === "Link") {
 					const imageUrl = block.image?.display.url;
 					content = `![](${imageUrl})`;
 				}
