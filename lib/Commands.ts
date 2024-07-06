@@ -64,7 +64,7 @@ export default class Commands {
 							new Notice("Block not updated");
 						});
 				} else {
-					const callback = async (channel: Channel) => {
+					const onSelectChannel = async (channel: Channel) => {
 						await this.arena
 							.createBlockWithContentAndTitle(
 								currentFileContent,
@@ -97,19 +97,17 @@ export default class Commands {
 							});
 					};
 
-					const modal = new ChannelsModal(
+					new ChannelsModal(
 						this.app,
 						this.settings,
 						true,
 						this.events,
-						callback,
-					);
+						onSelectChannel,
+					).open();
 
 					this.arena.getChannelsFromUser().then((channels) => {
 						this.events.trigger("channels-load", channels);
 					});
-
-					modal.open();
 				}
 			},
 		);
@@ -144,11 +142,18 @@ export default class Commands {
 							channel.title,
 						);
 
+						let content = block.content;
+
+						if (block.class === "Image") {
+							const imageUrl = block.image?.display.url;
+							content = `![](${imageUrl})`;
+						}
+
 						try {
 							await this.fileHandler.writeFile(
 								`${this.settings.folder}/${slug}`,
 								fileName,
-								block.content,
+								content,
 								frontData,
 							);
 							notesCreated++;
@@ -239,8 +244,9 @@ export default class Commands {
 	}
 
 	async getBlockFromArena() {
-		const callback = async (channel: Channel) => {
-			const callback = async (block: Block, channel: Channel) => {
+		const onSelectChannel = async (channel: Channel) => {
+			const onSelectBlock = async (block: Block, channel: Channel) => {
+				console.log(block);
 				const fileName = `${block.generated_title}`;
 				const frontData = Utils.getFrontmatterFromBlock(
 					block,
@@ -262,33 +268,29 @@ export default class Commands {
 					frontData,
 				);
 
-				new Notice(`Block created`);
+				new Notice(`Note created`);
 				await this.app.workspace.openLinkText(fileName, "", true);
 			};
 
-			const modal = new BlocksModal(
+			new BlocksModal(
 				this.app,
 				channel,
 				this.events,
-				callback,
-			);
-
-			modal.open();
+				onSelectBlock,
+			).open();
 
 			this.arena.getBlocksFromChannel(channel.slug).then((channels) => {
 				this.events.trigger("blocks-load", channels);
 			});
 		};
 
-		const modal = new ChannelsModal(
+		new ChannelsModal(
 			this.app,
 			this.settings,
 			false,
 			this.events,
-			callback,
-		);
-
-		modal.open();
+			onSelectChannel,
+		).open();
 
 		this.arena.getChannelsFromUser().then((channels) => {
 			this.events.trigger("channels-load", channels);
