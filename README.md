@@ -7,7 +7,7 @@ Publish content from [Obsidian](https://obsidian.md) to [Are.na](https://www.are
 Currently this plugin offers 5 commands:
 
 | Command                   | Description                                                                                         |
-|:------------------------- |:--------------------------------------------------------------------------------------------------- |
+| :------------------------ | :-------------------------------------------------------------------------------------------------- |
 | `Get blocks from channel` | Get all the blocks from a channel and create a new note in Obsidian with the content of each block. |
 | `Pull block`              | Updates the current open note with the content of a block from Are.na.                              |
 | `Push note`               | Pushes the content of the current open note to a block in Are.na.                                   |
@@ -17,7 +17,7 @@ Currently this plugin offers 5 commands:
 ### Installation
 
 1. [Install the plugin](https://obsidian.md/plugins?search=are.na%20manager) and enable it in Obsidian settings.
-2. Create a new Are.na application at [https://dev.are.na/oauth/applications](https://dev.are.na/oauth/applications). 
+2. Create a new Are.na application at [https://dev.are.na/oauth/applications](https://dev.are.na/oauth/applications).
    You can use any valid URL in the `Redirect URI` field.
 3. Submit the form and copy the `Personal Access Token`.
 4. Open the plugin settings page and set the following options:
@@ -43,6 +43,7 @@ When you get a block from Are.na, the plugin will add some frontmatter automatic
 
 This plugin is still in development and has some known limitations that I’d like to address in future releases:
 
+-   [x] Fetch all the user's channels.
 -   [ ] Media and attachment support in blocks.
 -   [ ] Pulling blocks to folders outside of the Are.na directory designated in the settings.
 -   [ ] Pulling blocks from other users’ channels.
