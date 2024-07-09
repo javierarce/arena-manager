@@ -12,17 +12,40 @@ export default class Arena {
 	}
 
 	async getChannelsFromUser(): Promise<Channel[]> {
-		const url = `https://api.are.na/v2/users/${this.settings.username}/channels?v=${Date.now()}`;
-		return requestUrl({
-			url,
-			headers: {
-				Authorization: `Bearer ${this.settings.accessToken}`,
-			},
-		})
-			.then((response) => response.json)
-			.then((data) => {
-				return data.channels;
-			});
+		const baseUrl = `https://api.are.na/v2/users/${this.settings.username}/channels`;
+		const headers = {
+			Authorization: `Bearer ${this.settings.accessToken}`,
+		};
+
+		let allChannels: Channel[] = [];
+		let currentPage = 1;
+		let totalPages = 1;
+
+		while (currentPage <= totalPages) {
+			const url = `${baseUrl}?page=${currentPage}&v=${Date.now()}`;
+
+			try {
+				const response = await requestUrl({
+					url,
+					headers,
+				});
+
+				if (response.status !== 200) {
+					throw new Error(`HTTP error! Status: ${response.status}`);
+				}
+
+				const data = response.json;
+
+				allChannels = allChannels.concat(data.channels);
+				totalPages = data.total_pages;
+				currentPage++;
+			} catch (error) {
+				console.error("Error fetching channels:", error);
+				break;
+			}
+		}
+
+		return allChannels;
 	}
 
 	async updateBlockWithContentAndBlockID(
