@@ -108,7 +108,9 @@ export default class Arena {
 		})
 			.then((response) => response.json)
 			.then((data) => {
-				return data.contents;
+				return data.contents.sort((a: Block, b: Block) => {
+					return b.position - a.position;
+				});
 			});
 	}
 
