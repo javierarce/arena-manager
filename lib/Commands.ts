@@ -1,4 +1,5 @@
 import { App, Notice, Events } from "obsidian";
+import { requestUrl } from "obsidian";
 
 import Arena from "./Arena";
 import FileHandler from "./FileHandler";
@@ -124,7 +125,6 @@ export default class Commands {
 					for (const block of blocks) {
 						if (
 							block.class === "Channel" ||
-							block.class === "Attachment" ||
 							block.class === "Media"
 						) {
 							continue;
@@ -155,6 +155,9 @@ export default class Commands {
 								fileName,
 								content,
 								frontData,
+								block.class === "Attachment"
+									? block.attachment
+									: undefined,
 							);
 							notesCreated++;
 						} catch (error) {
@@ -201,18 +204,18 @@ export default class Commands {
 			this.arena.getBlockWithID(blockId).then(async (block) => {
 				const title = block.generated_title;
 				let content = block.content;
+				const channelTitle = frontMatter?.channel as string;
+				const frontData = Utils.getFrontmatterFromBlock(
+					block,
+					channelTitle,
+				);
 
 				if (block.class === "Image" || block.class === "Link") {
 					const imageUrl = block.image?.display.url;
 					content = `![](${imageUrl})`;
 				}
 
-				const channelTitle = frontMatter?.channel as string;
-				const frontData = Utils.getFrontmatterFromBlock(
-					block,
-					channelTitle,
-				);
-				this.fileHandler.updateFile(
+				this.fileHandler.renameFile(
 					currentFile,
 					title,
 					content,
@@ -265,6 +268,7 @@ export default class Commands {
 					fileName,
 					content,
 					frontData,
+					block.class === "Attachment" ? block.attachment : undefined,
 				);
 
 				new Notice(`Note created`);

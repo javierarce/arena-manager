@@ -120,10 +120,7 @@ export class BlocksModal extends FuzzySuggestModal<Block> {
 	getItems(): Block[] {
 		if (this.blocks) {
 			return this.blocks.filter(
-				(block) =>
-					block.class !== "Channel" &&
-					block.class !== "Attachment" &&
-					block.class !== "Media",
+				(block) => block.class !== "Channel" && block.class !== "Media",
 			);
 		}
 		return this.blocks;

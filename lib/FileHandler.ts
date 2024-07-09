@@ -1,4 +1,5 @@
-import { App, TFile, TAbstractFile, TFolder } from "obsidian";
+import { App, TFile, TAbstractFile, TFolder, requestUrl } from "obsidian";
+import { Attachment } from "./types";
 import { Settings } from "./Settings";
 
 export default class Filemanager {
@@ -14,7 +15,7 @@ export default class Filemanager {
 		return fileName.replace(/[\\/:]/g, " ");
 	}
 
-	async updateFile(
+	async renameFile(
 		filePath: TFile,
 		title: string,
 		content: string,
@@ -74,16 +75,87 @@ export default class Filemanager {
 		await this.writeFrontmatter(file, frontData);
 	}
 
+	async downloadAttachment(attachment: Attachment) {
+		const request = await requestUrl(attachment.url);
+
+		try {
+			this.app.vault.adapter.writeBinary(
+				`${this.settings.folder}/${attachment.file_name}`,
+				request.arrayBuffer,
+			);
+		} catch (error) {
+			console.error("Error downloading attachment", error);
+		}
+	}
+
+	async updateFile(
+		file: TFile,
+		folderPath: string,
+		fileName: string,
+		content: string,
+		frontData: Record<string, string | number> = {},
+		attachment?: Attachment,
+	) {
+		const blockId = await this.getBlockIdFromFile(file);
+
+		if (blockId === frontData?.blockid) {
+			if (attachment) {
+				await this.downloadAttachment(attachment);
+				content = `![](${attachment.file_name})`;
+			}
+			await this.updateFileWithFrontmatter(
+				folderPath,
+				fileName,
+				content,
+				frontData,
+			);
+		} else {
+			const newFilename = `${fileName.split(".")[0]}-${frontData.blockid}.md`;
+
+			const newFile = this.getFileByFolderPathAndFileName(
+				folderPath,
+				newFilename,
+			);
+
+			if (!newFile) {
+				await this.createFileWithFrontmatter(
+					folderPath,
+					newFilename,
+					content,
+					frontData,
+				);
+			} else {
+				await this.updateFileWithFrontmatter(
+					folderPath,
+					newFilename,
+					content,
+					frontData,
+				);
+			}
+		}
+	}
+
 	async writeFile(
 		folderPath: string,
 		fileName: string,
 		content: string,
 		frontData: Record<string, string | number> = {},
+		attachment?: Attachment,
 	) {
 		await this.createFolder(folderPath);
 		const file = this.getFileByFolderPathAndFileName(folderPath, fileName);
 
+		if (!content) {
+			content = "";
+			console.warn("Empty content");
+		}
+
 		if (!file) {
+			if (attachment) {
+				await this.downloadAttachment(attachment);
+				content = `![](${attachment.file_name})`;
+			}
+
 			await this.createFileWithFrontmatter(
 				folderPath,
 				fileName,
@@ -91,39 +163,14 @@ export default class Filemanager {
 				frontData,
 			);
 		} else {
-			const blockId = await this.getBlockIdFromFile(file);
-
-			if (blockId === frontData?.blockid) {
-				await this.updateFileWithFrontmatter(
-					folderPath,
-					fileName,
-					content,
-					frontData,
-				);
-			} else {
-				const newFilename = `${fileName.split(".")[0]}-${frontData.blockid}.md`;
-
-				const newFile = this.getFileByFolderPathAndFileName(
-					folderPath,
-					newFilename,
-				);
-
-				if (!newFile) {
-					await this.createFileWithFrontmatter(
-						folderPath,
-						newFilename,
-						content,
-						frontData,
-					);
-				} else {
-					await this.updateFileWithFrontmatter(
-						folderPath,
-						newFilename,
-						content,
-						frontData,
-					);
-				}
-			}
+			this.updateFile(
+				file,
+				folderPath,
+				fileName,
+				content,
+				frontData,
+				attachment,
+			);
 		}
 	}
 
