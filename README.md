@@ -44,7 +44,7 @@ When you get a block from Are.na, the plugin will add some frontmatter automatic
 This plugin is still in development and has some known limitations that I’d like to address in future releases:
 
 -   [x] Fetch all the user's channels.
--   [ ] Media and attachment offline support.
+-   [x] Attachment offline support.
 -   [ ] Template system (from [this issue](https://github.com/javierarce/arena-manager/issues/1))
 -   [ ] Pulling blocks to folders outside of the Are.na directory designated in the settings.
 -   [ ] Pulling blocks from other users’ channels.
