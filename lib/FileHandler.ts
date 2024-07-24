@@ -1,7 +1,7 @@
 import { App, TFile, TAbstractFile, TFolder, requestUrl } from "obsidian";
 
 import { Attachment } from "./types";
-import { Settings } from "./Settings";
+import { Settings, DOWNLOAD_ATTACHMENTS_TYPES } from "./Settings";
 
 export default class Filemanager {
 	app: App;
@@ -16,7 +16,7 @@ export default class Filemanager {
 		return fileName.replace(/[\\/:]/g, " ");
 	}
 
-	async doesAttachmentExist(fileName): Promise<boolean> {
+	async doesAttachmentExist(fileName: string): Promise<boolean> {
 		const filePath = `${this.settings.attachments_folder}/${fileName}`;
 		return this.doesFileExist(filePath);
 	}
@@ -34,16 +34,22 @@ export default class Filemanager {
 		attachment?: Attachment,
 	) {
 		const fileName = this.getSafeFilename(title);
+		const folderPath = `${this.settings.folder}/${frontData.channel}`;
 
-		if (this.settings.download_attachments && attachment) {
+		if (
+			this.settings.download_attachments_type !==
+				DOWNLOAD_ATTACHMENTS_TYPES.none &&
+			attachment
+		) {
 			const attachmentFileName = await this.downloadAttachment(
 				attachment,
+				folderPath,
 				fileName,
 			);
-			content = `![[${this.settings.attachments_folder}/${attachmentFileName}]]`;
+			content = `![[${attachmentFileName}]]`;
 		}
 
-		const newName = `${this.settings.folder}/${frontData.channel}/${fileName}.md`;
+		const newName = `${folderPath}/${fileName}.md`;
 		await this.app.vault.modify(filePath, content);
 		await this.writeFrontmatter(filePath, frontData);
 		await this.app.vault.rename(filePath, newName);
@@ -105,14 +111,31 @@ export default class Filemanager {
 		return this.getSafeFilename(`${name}.${attachment.extension}`);
 	}
 
-	async downloadAttachment(attachment: Attachment, filename: string) {
+	async downloadAttachment(
+		attachment: Attachment,
+		folderPath: string,
+		filename: string,
+	) {
 		const request = await requestUrl(attachment.url);
 
 		if (
-			this.settings.download_attachments &&
+			this.settings.download_attachments_type !=
+				DOWNLOAD_ATTACHMENTS_TYPES.none &&
 			this.settings.attachments_folder
 		) {
-			await this.createFolder(this.settings.attachments_folder);
+			if (
+				this.settings.download_attachments_type ==
+				DOWNLOAD_ATTACHMENTS_TYPES.channel
+			) {
+				await this.createFolder(
+					`${folderPath}/${this.settings.attachments_folder}`,
+				);
+			} else if (
+				this.settings.download_attachments_type ==
+				DOWNLOAD_ATTACHMENTS_TYPES.custom
+			) {
+				await this.createFolder(this.settings.attachments_folder);
+			}
 		}
 
 		try {
@@ -121,12 +144,36 @@ export default class Filemanager {
 				filename,
 			);
 
+			let attachmentFolderPath = this.settings.attachments_folder;
+
+			if (
+				this.settings.download_attachments_type ==
+				DOWNLOAD_ATTACHMENTS_TYPES.channel
+			) {
+				if (this.settings.attachments_folder) {
+					attachmentFolderPath = `${folderPath}/${this.settings.attachments_folder}`;
+				} else {
+					attachmentFolderPath = `${folderPath}`;
+				}
+			}
+
 			this.app.vault.adapter.writeBinary(
-				`${this.settings.attachments_folder}/${attachmentFileName}`,
+				`${attachmentFolderPath}/${attachmentFileName}`,
 				request.arrayBuffer,
 			);
 
-			return attachmentFileName;
+			if (
+				this.settings.download_attachments_type ==
+				DOWNLOAD_ATTACHMENTS_TYPES.channel
+			) {
+				if (this.settings.attachments_folder) {
+					return `${folderPath}/${this.settings.attachments_folder}/${attachmentFileName}`;
+				} else {
+					return `${folderPath}/${attachmentFileName}`;
+				}
+			} else {
+				return `${attachmentFolderPath}/${attachmentFileName}`;
+			}
 		} catch (error) {
 			console.error("Error downloading attachment", error);
 			return null;
@@ -176,12 +223,17 @@ export default class Filemanager {
 		const blockId = await this.getBlockIdFromFile(file);
 
 		if (blockId === frontData?.blockid) {
-			if (this.settings.download_attachments && attachment) {
+			if (
+				this.settings.download_attachments_type !==
+					DOWNLOAD_ATTACHMENTS_TYPES.none &&
+				attachment
+			) {
 				const attachmentFileName = await this.downloadAttachment(
 					attachment,
+					folderPath,
 					fileName,
 				);
-				content = `![[${this.settings.attachments_folder}/${attachmentFileName}]]`;
+				content = `![[${attachmentFileName}]]`;
 			}
 
 			// If the blockid is the same, update the file
@@ -200,12 +252,17 @@ export default class Filemanager {
 				frontData.blockid,
 			);
 
-			if (this.settings.download_attachments && attachment) {
+			if (
+				this.settings.download_attachments_type !==
+					DOWNLOAD_ATTACHMENTS_TYPES.none &&
+				attachment
+			) {
 				const attachmentFileName = await this.downloadAttachment(
 					attachment,
+					folderPath,
 					newFilename,
 				);
-				content = `![[${this.settings.attachments_folder}/${attachmentFileName}]]`;
+				content = `![[${attachmentFileName}]]`;
 			}
 
 			const newFile = this.getFileByFolderPathAndFileName(
@@ -247,12 +304,17 @@ export default class Filemanager {
 		}
 
 		if (!file) {
-			if (this.settings.download_attachments && attachment) {
+			if (
+				this.settings.download_attachments_type !==
+					DOWNLOAD_ATTACHMENTS_TYPES.none &&
+				attachment
+			) {
 				const attachmentFileName = await this.downloadAttachment(
 					attachment,
+					folderPath,
 					fileName,
 				);
-				content = `![[${this.settings.attachments_folder}/${attachmentFileName}]]`;
+				content = `![[${attachmentFileName}]]`;
 			}
 
 			await this.createFileWithFrontmatter(

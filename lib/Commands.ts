@@ -1,5 +1,4 @@
 import { App, Notice, Events } from "obsidian";
-import { requestUrl } from "obsidian";
 
 import Arena from "./Arena";
 import FileHandler from "./FileHandler";

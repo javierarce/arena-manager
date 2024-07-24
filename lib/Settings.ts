@@ -6,16 +6,24 @@ export interface Settings {
 	accessToken: string;
 	username: string;
 	folder: string;
-	download_attachments?: boolean;
+	download_attachments_type: string;
 	attachments_folder?: string;
 }
+
+export const DOWNLOAD_ATTACHMENTS_TYPES = {
+	none: "1",
+	channel: "2",
+	custom: "3",
+};
+
+export const CUSTOM_ATTACHMENTS_FOLDER = "arena/attachments";
 
 export const DEFAULT_SETTINGS: Settings = {
 	accessToken: "",
 	username: "",
 	folder: "arena",
-	download_attachments: false,
-	attachments_folder: "arena/attachments",
+	attachments_folder: CUSTOM_ATTACHMENTS_FOLDER,
+	download_attachments_type: DOWNLOAD_ATTACHMENTS_TYPES.none,
 };
 
 export class TemplaterSettingTab extends PluginSettingTab {
@@ -30,8 +38,12 @@ export class TemplaterSettingTab extends PluginSettingTab {
 		this.addFolder();
 		this.addUsername();
 		this.addAccessToken();
-		this.addToggleDownloadAttachments();
-		if (this.plugin.settings.attachments_folder) {
+		this.addSelect();
+
+		if (
+			this.plugin.settings.download_attachments_type !==
+			DOWNLOAD_ATTACHMENTS_TYPES.none
+		) {
 			this.addAttachmentsFolder();
 		}
 	}
@@ -91,37 +103,79 @@ export class TemplaterSettingTab extends PluginSettingTab {
 			);
 	}
 
-	addToggleDownloadAttachments() {
+	addSelect() {
 		new Setting(this.containerEl)
 			.setName("Download attachments")
-			.setDesc("Enable or disable downloading attachments.")
-			.addToggle((toggle) =>
-				toggle
-					.setValue(
-						this.plugin.settings.download_attachments || false,
-					)
-					.onChange(async (value) => {
-						this.plugin.settings.download_attachments = value;
-						if (value) {
-							this.plugin.settings.attachments_folder =
-								DEFAULT_SETTINGS.attachments_folder;
-						} else {
-							this.plugin.settings.attachments_folder = "";
-						}
+			.setDesc("Choose where to download the attachments.")
+			.addDropdown((dropdown) => {
+				dropdown.addOption(
+					DOWNLOAD_ATTACHMENTS_TYPES.none,
+					"Don't download attachments",
+				);
+				dropdown.addOption(
+					DOWNLOAD_ATTACHMENTS_TYPES.channel,
+					"Download inside the channel folder",
+				);
+				dropdown.addOption(
+					DOWNLOAD_ATTACHMENTS_TYPES.custom,
+					"Download to a custom folder",
+				);
+				dropdown.setValue(
+					this.plugin.settings.download_attachments_type,
+				);
+				dropdown.onChange(async (value) => {
+					this.plugin.settings.download_attachments_type = value;
+					if (value === DOWNLOAD_ATTACHMENTS_TYPES.none) {
+						this.plugin.settings.attachments_folder = undefined;
+					} else if (value === DOWNLOAD_ATTACHMENTS_TYPES.channel) {
+						this.plugin.settings.attachments_folder = undefined;
+					} else if (value === DOWNLOAD_ATTACHMENTS_TYPES.custom) {
+						this.plugin.settings.attachments_folder =
+							CUSTOM_ATTACHMENTS_FOLDER;
+					}
 
-						await this.plugin.saveSettings();
-						this.display();
-					}),
-			);
+					await this.plugin.saveSettings();
+					this.display();
+				});
+			});
 	}
 
 	addAttachmentsFolder() {
+		let name = "Channel attachments folder";
+
+		let tooltip = createFragment((fragment) => {
+			fragment.append(
+				"Save inside the channel folder:",
+				fragment.createEl("code", {
+					text: `${this.plugin.settings.folder}/channel/{folder name}.`,
+				}),
+			);
+			fragment.append(
+				"Leave empty to save directly in the channel folder",
+			);
+		});
+
+		if (
+			this.plugin.settings.download_attachments_type ===
+			DOWNLOAD_ATTACHMENTS_TYPES.custom
+		) {
+			name = "Custom attachments folder";
+			tooltip = tooltip = createFragment((fragment) => {
+				fragment.append(
+					"Save inside a custom folder:",
+					fragment.createEl("code", {
+						text: `${this.plugin.settings.folder}/attachments/{folder name}.`,
+					}),
+				);
+			});
+		}
+
 		new Setting(this.containerEl)
-			.setName("Media folder")
-			.setDesc("The folder where the attachments will be saved.")
+			.setName(name)
+			.setDesc(tooltip)
 			.addText((text) =>
 				text
-					.setPlaceholder("Enter a name")
+					.setPlaceholder("Folder name")
 					.setValue(this.plugin.settings.attachments_folder || "")
 					.onChange(async (value) => {
 						this.plugin.settings.attachments_folder = value;
