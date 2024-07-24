@@ -220,6 +220,7 @@ export default class Commands {
 					title,
 					content,
 					frontData,
+					block.class === "Attachment" ? block.attachment : undefined,
 				);
 			});
 		} else {

@@ -47,7 +47,8 @@ export default class ArenaManagerPlugin extends Plugin {
 			id: "pull-block",
 			name: "Pull block from Are.na",
 			checkCallback: (checking: boolean) => {
-				if (Utils.hasRequiredSettings(this.settings)) {
+				const currentFile = this.app.workspace.getActiveFile();
+				if (currentFile && Utils.hasRequiredSettings(this.settings)) {
 					if (!checking) {
 						this.commands.pullBlock();
 					}
