@@ -24,6 +24,14 @@ export interface Source {
 	url: string;
 }
 
+export interface Attachment {
+	extension: string;
+	file_name: string;
+	file_size: number;
+	file_size_display: string;
+	url: string;
+}
+
 export interface User {
 	avatar: string;
 	avatar_image: string;
@@ -70,6 +78,7 @@ export interface Image {
 export interface Block {
 	user: User;
 	id: number;
+	attachment: Attachment;
 	base_class: string;
 	image: Image;
 	class: string;

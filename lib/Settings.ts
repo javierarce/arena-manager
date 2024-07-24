@@ -6,12 +6,16 @@ export interface Settings {
 	accessToken: string;
 	username: string;
 	folder: string;
+	download_attachments?: boolean;
+	attachments_folder?: string;
 }
 
 export const DEFAULT_SETTINGS: Settings = {
 	accessToken: "",
 	username: "",
 	folder: "arena",
+	download_attachments: false,
+	attachments_folder: "arena/attachments",
 };
 
 export class TemplaterSettingTab extends PluginSettingTab {
@@ -26,6 +30,10 @@ export class TemplaterSettingTab extends PluginSettingTab {
 		this.addFolder();
 		this.addUsername();
 		this.addAccessToken();
+		this.addToggleDownloadAttachments();
+		if (this.plugin.settings.attachments_folder) {
+			this.addAttachmentsFolder();
+		}
 	}
 
 	addFolder() {
@@ -78,6 +86,45 @@ export class TemplaterSettingTab extends PluginSettingTab {
 					.setValue(this.plugin.settings.accessToken)
 					.onChange(async (value) => {
 						this.plugin.settings.accessToken = value;
+						await this.plugin.saveSettings();
+					}),
+			);
+	}
+
+	addToggleDownloadAttachments() {
+		new Setting(this.containerEl)
+			.setName("Download attachments")
+			.setDesc("Enable or disable downloading attachments.")
+			.addToggle((toggle) =>
+				toggle
+					.setValue(
+						this.plugin.settings.download_attachments || false,
+					)
+					.onChange(async (value) => {
+						this.plugin.settings.download_attachments = value;
+						if (value) {
+							this.plugin.settings.attachments_folder =
+								DEFAULT_SETTINGS.attachments_folder;
+						} else {
+							this.plugin.settings.attachments_folder = "";
+						}
+
+						await this.plugin.saveSettings();
+						this.display();
+					}),
+			);
+	}
+
+	addAttachmentsFolder() {
+		new Setting(this.containerEl)
+			.setName("Media folder")
+			.setDesc("The folder where the attachments will be saved.")
+			.addText((text) =>
+				text
+					.setPlaceholder("Enter a name")
+					.setValue(this.plugin.settings.attachments_folder || "")
+					.onChange(async (value) => {
+						this.plugin.settings.attachments_folder = value;
 						await this.plugin.saveSettings();
 					}),
 			);

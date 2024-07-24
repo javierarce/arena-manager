@@ -15,6 +15,10 @@ class Utils {
 			frontmatter["class"] = block.class;
 		}
 
+		if (block.title) {
+			frontmatter["title"] = block.title;
+		}
+
 		if (block.description) {
 			frontmatter["description"] = block.description;
 		}

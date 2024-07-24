@@ -1,4 +1,6 @@
-import { App, TFile, TAbstractFile, TFolder } from "obsidian";
+import { App, TFile, TAbstractFile, TFolder, requestUrl } from "obsidian";
+
+import { Attachment } from "./types";
 import { Settings } from "./Settings";
 
 export default class Filemanager {
@@ -14,13 +16,34 @@ export default class Filemanager {
 		return fileName.replace(/[\\/:]/g, " ");
 	}
 
-	async updateFile(
+	async doesAttachmentExist(fileName): Promise<boolean> {
+		const filePath = `${this.settings.attachments_folder}/${fileName}`;
+		return this.doesFileExist(filePath);
+	}
+
+	async doesFileExist(filePath: string): Promise<boolean> {
+		const file = this.app.vault.getAbstractFileByPath(filePath);
+		return file !== null;
+	}
+
+	async renameFile(
 		filePath: TFile,
 		title: string,
 		content: string,
 		frontData: Record<string, string | number> = {},
+		attachment?: Attachment,
 	) {
-		const newName = `${this.settings.folder}/${frontData.channel}/${this.getSafeFilename(title)}.md`;
+		const fileName = this.getSafeFilename(title);
+
+		if (this.settings.download_attachments && attachment) {
+			const attachmentFileName = await this.downloadAttachment(
+				attachment,
+				fileName,
+			);
+			content = `![[${this.settings.attachments_folder}/${attachmentFileName}]]`;
+		}
+
+		const newName = `${this.settings.folder}/${frontData.channel}/${fileName}.md`;
 		await this.app.vault.modify(filePath, content);
 		await this.writeFrontmatter(filePath, frontData);
 		await this.app.vault.rename(filePath, newName);
@@ -74,16 +97,164 @@ export default class Filemanager {
 		await this.writeFrontmatter(file, frontData);
 	}
 
+	getAttachmentFilenameFromTitle(attachment: Attachment, title?: string) {
+		let name = title || attachment.file_name;
+		if (name.endsWith(`.${attachment.extension}`)) {
+			name = name.slice(0, -attachment.extension.length - 1);
+		}
+		return this.getSafeFilename(`${name}.${attachment.extension}`);
+	}
+
+	async downloadAttachment(attachment: Attachment, filename: string) {
+		const request = await requestUrl(attachment.url);
+
+		if (
+			this.settings.download_attachments &&
+			this.settings.attachments_folder
+		) {
+			await this.createFolder(this.settings.attachments_folder);
+		}
+
+		try {
+			const attachmentFileName = this.getAttachmentFilenameFromTitle(
+				attachment,
+				filename,
+			);
+
+			this.app.vault.adapter.writeBinary(
+				`${this.settings.attachments_folder}/${attachmentFileName}`,
+				request.arrayBuffer,
+			);
+
+			return attachmentFileName;
+		} catch (error) {
+			console.error("Error downloading attachment", error);
+			return null;
+		}
+	}
+
+	async findNextAvailableFileName(
+		folderPath: string,
+		baseFileName: string,
+		blockId: any,
+	): Promise<string> {
+		let counter = 0;
+		let filePath = `${folderPath}/${baseFileName}.md`;
+
+		while (await this.doesFileExist(filePath)) {
+			const file = this.app.vault.getAbstractFileByPath(
+				filePath,
+			) as TFile;
+
+			const frontmatter = await this.getFrontmatterFromFile(file);
+
+			if (frontmatter.blockid === blockId) {
+				// If we find a file with the same blockId, we'll use this file
+				if (counter === 0) {
+					return baseFileName;
+				} else {
+					return `${baseFileName}-${counter}`;
+				}
+			}
+
+			// If blockId is different, increment counter and try next filename
+			counter++;
+			filePath = `${folderPath}/${baseFileName}-${counter}.md`;
+		}
+
+		return `${baseFileName}-${counter}`;
+	}
+
+	async updateFile(
+		file: TFile,
+		folderPath: string,
+		fileName: string,
+		content: string,
+		frontData: Record<string, string | number> = {},
+		attachment?: Attachment,
+	) {
+		const blockId = await this.getBlockIdFromFile(file);
+
+		if (blockId === frontData?.blockid) {
+			if (this.settings.download_attachments && attachment) {
+				const attachmentFileName = await this.downloadAttachment(
+					attachment,
+					fileName,
+				);
+				content = `![[${this.settings.attachments_folder}/${attachmentFileName}]]`;
+			}
+
+			// If the blockid is the same, update the file
+			await this.updateFileWithFrontmatter(
+				folderPath,
+				fileName,
+				content,
+				frontData,
+			);
+		} else {
+			// If the blockid is different, create a new file
+			const baseFileName = `${fileName.split(".")[0]}`;
+			const newFilename = await this.findNextAvailableFileName(
+				folderPath,
+				baseFileName,
+				frontData.blockid,
+			);
+
+			if (this.settings.download_attachments && attachment) {
+				const attachmentFileName = await this.downloadAttachment(
+					attachment,
+					newFilename,
+				);
+				content = `![[${this.settings.attachments_folder}/${attachmentFileName}]]`;
+			}
+
+			const newFile = this.getFileByFolderPathAndFileName(
+				folderPath,
+				newFilename,
+			);
+
+			if (!newFile) {
+				await this.createFileWithFrontmatter(
+					folderPath,
+					newFilename,
+					content,
+					frontData,
+				);
+			} else {
+				await this.updateFileWithFrontmatter(
+					folderPath,
+					newFilename,
+					content,
+					frontData,
+				);
+			}
+		}
+	}
+
 	async writeFile(
 		folderPath: string,
 		fileName: string,
 		content: string,
 		frontData: Record<string, string | number> = {},
+		attachment?: Attachment,
 	) {
 		await this.createFolder(folderPath);
 		const file = this.getFileByFolderPathAndFileName(folderPath, fileName);
 
+		if (!content) {
+			content = "";
+			console.warn("Empty content");
+		}
+
 		if (!file) {
+			if (this.settings.download_attachments && attachment) {
+				const attachmentFileName = await this.downloadAttachment(
+					attachment,
+					fileName,
+				);
+				content = `![[${this.settings.attachments_folder}/${attachmentFileName}]]`;
+			}
+
 			await this.createFileWithFrontmatter(
 				folderPath,
 				fileName,
@@ -91,39 +262,14 @@ export default class Filemanager {
 				frontData,
 			);
 		} else {
-			const blockId = await this.getBlockIdFromFile(file);
-
-			if (blockId === frontData?.blockid) {
-				await this.updateFileWithFrontmatter(
-					folderPath,
-					fileName,
-					content,
-					frontData,
-				);
-			} else {
-				const newFilename = `${fileName.split(".")[0]}-${frontData.blockid}.md`;
-
-				const newFile = this.getFileByFolderPathAndFileName(
-					folderPath,
-					newFilename,
-				);
-
-				if (!newFile) {
-					await this.createFileWithFrontmatter(
-						folderPath,
-						newFilename,
-						content,
-						frontData,
-					);
-				} else {
-					await this.updateFileWithFrontmatter(
-						folderPath,
-						newFilename,
-						content,
-						frontData,
-					);
-				}
-			}
+			await this.updateFile(
+				file,
+				folderPath,
+				fileName,
+				content,
+				frontData,
+				attachment,
+			);
 		}
 	}
 
