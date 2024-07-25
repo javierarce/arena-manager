@@ -38,7 +38,7 @@ The plugin doesn’t download attachments by default. If you want to download th
 When you get a block from Are.na, the plugin will add some frontmatter automatically to allow syncronizing your note and the block.
 
 | Property     | Description                                                |
-| ------------ | ---------------------------------------------------------- |
+| :----------- | :--------------------------------------------------------- |
 | blockid      | the id of the block in Are.na                              |
 | class        | the class of the block in Are.na (e.g. Link or Attachment) |
 | title        | the title of the block in Are.na                           |
