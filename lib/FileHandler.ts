@@ -34,7 +34,11 @@ export default class Filemanager {
 		attachment?: Attachment,
 	) {
 		const fileName = this.getSafeFilename(title);
-		const folderPath = `${this.settings.folder}/${frontData.channel}`;
+		let folderPath = this.settings.folder;
+
+		if (frontData.channel) {
+			folderPath = `${folderPath}/${frontData.channel}`;
+		}
 
 		if (
 			this.settings.download_attachments_type !==

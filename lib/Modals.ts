@@ -1,4 +1,11 @@
-import { Events, App, FuzzySuggestModal, FuzzyMatch } from "obsidian";
+import {
+	Setting,
+	Events,
+	App,
+	Modal,
+	FuzzySuggestModal,
+	FuzzyMatch,
+} from "obsidian";
 import { Settings } from "./Settings";
 import { Channel, Block } from "./types";
 
@@ -132,5 +139,50 @@ export class BlocksModal extends FuzzySuggestModal<Block> {
 
 	onChooseItem(block: Block, _evt: MouseEvent | KeyboardEvent): void {
 		this.callback(block, this.channel);
+	}
+}
+
+export class URLModal extends Modal {
+	url: string;
+	callback: (url: string) => void;
+	onSubmit: (result: string) => void;
+
+	constructor(app: App, callback: (url: string) => void) {
+		super(app);
+		this.callback = callback;
+	}
+
+	onOpen() {
+		const { contentEl } = this;
+		this.titleEl.setText("Enter Are.na block id or URL");
+
+		contentEl.createEl("form", {}, (form) => {
+			form.style.display = "flex";
+			form.style.gap = "12px";
+
+			const input = form.createEl("input", {
+				placeholder: "https://are.na/block/5",
+				type: "text",
+			}) as HTMLInputElement;
+
+			input.style.width = "100%";
+
+			input.onchange = (_event) => {
+				this.url = input.value;
+			};
+
+			form.onsubmit = (e) => {
+				e.preventDefault();
+				this.callback(this.url);
+				this.close();
+			};
+
+			form.createEl("button", { text: "Submit" });
+		});
+	}
+
+	onClose() {
+		let { contentEl } = this;
+		contentEl.empty();
 	}
 }

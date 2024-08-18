@@ -4,7 +4,7 @@ import Arena from "./Arena";
 import FileHandler from "./FileHandler";
 import Utils from "./Utils";
 import { ARENA_BLOCK_URL, Channel, Block } from "./types";
-import { ChannelsModal, BlocksModal } from "./Modals";
+import { ChannelsModal, BlocksModal, URLModal } from "./Modals";
 import { Settings } from "./Settings";
 
 export default class Commands {
@@ -204,6 +204,7 @@ export default class Commands {
 				const title = block.generated_title;
 				let content = block.content;
 				const channelTitle = frontMatter?.channel as string;
+
 				const frontData = Utils.getFrontmatterFromBlock(
 					block,
 					channelTitle,
@@ -298,5 +299,62 @@ export default class Commands {
 		this.arena.getChannelsFromUser().then((channels) => {
 			this.events.trigger("channels-load", channels);
 		});
+	}
+
+	async getBlockByID() {
+		new URLModal(this.app, (url: string) => {
+			function getIDFromURL(url: string) {
+				const blockMatch = url.match(/(?:block\/)(\d+)/);
+
+				if (blockMatch) {
+					return blockMatch[1];
+				}
+
+				if (/^\d+$/.test(url)) {
+					return url;
+				}
+
+				return undefined;
+			}
+
+			const blockId = getIDFromURL(url);
+
+			if (blockId) {
+				this.arena
+					.getBlockWithID(blockId)
+					.then(async (block) => {
+						const fileName = `${block.generated_title}`;
+						const frontData = Utils.getFrontmatterFromBlock(block);
+
+						let content = block.content;
+
+						if (block.class === "Image" || block.class === "Link") {
+							const imageUrl = block.image?.display.url;
+							content = `![](${imageUrl})`;
+						}
+
+						await this.fileHandler.writeFile(
+							`${this.settings.folder}`,
+							fileName,
+							content,
+							frontData,
+							block.class === "Attachment"
+								? block.attachment
+								: undefined,
+						);
+
+						new Notice(`Note created`);
+						await this.app.workspace.openLinkText(
+							fileName,
+							"",
+							true,
+						);
+					})
+					.catch((error) => {
+						console.error(error);
+						new Notice("Error getting block");
+					});
+			}
+		}).open();
 	}
 }

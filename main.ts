@@ -107,6 +107,21 @@ export default class ArenaManagerPlugin extends Plugin {
 				return false;
 			},
 		});
+
+		this.addCommand({
+			id: "get-block-by-id",
+			name: "Get a block by its ID or URL",
+			checkCallback: (checking: boolean) => {
+				if (Utils.hasRequiredSettings(this.settings)) {
+					if (!checking) {
+						this.commands.getBlockByID();
+					}
+					return true;
+				}
+
+				return false;
+			},
+		});
 	}
 
 	onunload() {}
