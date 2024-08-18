@@ -314,12 +314,12 @@ export default class Commands {
 					return url;
 				}
 
-				return undefined;
+				return -1;
 			}
 
-			const blockId = getIDFromURL(url);
+			const blockId = getIDFromURL(url) as number;
 
-			if (blockId) {
+			if (blockId > 0) {
 				this.arena
 					.getBlockWithID(blockId)
 					.then(async (block) => {
