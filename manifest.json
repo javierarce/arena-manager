@@ -1,7 +1,7 @@
 {
 	"id": "arena-manager",
 	"name": "Are.na Manager",
-	"version": "1.0.5",
+	"version": "1.0.6",
 	"minAppVersion": "1.6.4",
 	"description": "Publish content from your vault to Arena and the other way around.",
 	"author": "Javier Arce",
