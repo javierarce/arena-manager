@@ -62,4 +62,4 @@ When you get a block from Are.na, the plugin will add some frontmatter automatic
 
 ### Contributing
 
-If you have ideas, suggestions, or bug reports feel free to [open an issue](https://github.com/javierarce/arena-manager/issues).
+If you have ideas, suggestions, or bug reports feel free to [open an issue](https://github.com/javierarce/arena-manager/issues). To set up the project locally and submit code, see the [contributing guide](CONTRIBUTING.md).
