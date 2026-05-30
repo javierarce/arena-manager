@@ -39,7 +39,7 @@ export default class Commands {
 		const currentFile = this.app.workspace.getActiveFile();
 
 		if (!currentFile) {
-			new Notice("No active file open"); // TODO: Improve error message
+			new Notice("Open a note to push it to are.na.");
 			return;
 		}
 
@@ -119,7 +119,10 @@ export default class Commands {
 					.then((channels) => {
 						events.trigger("channels-load", channels);
 					})
-					.catch((error) => console.error(error));
+					.catch((error) => {
+						console.error(error);
+						new Notice("Couldn't load your channels.");
+					});
 			}
 		});
 	}
@@ -129,6 +132,7 @@ export default class Commands {
 
 		const callback = (channel: Channel) => {
 			let notesCreated = 0;
+			let failed = 0;
 			new Notice(`Getting blocks from ${channel.title}…`);
 
 			void this.arena
@@ -167,15 +171,17 @@ export default class Commands {
 							notesCreated++;
 						} catch (error) {
 							console.error(error);
-							new Notice("Error creating file");
+							failed++;
 						}
 					}
 
-					new Notice(
-						`${notesCreated} note${notesCreated !== 1 ? "s" : ""} created`,
-					);
+					const saved = `${notesCreated} note${notesCreated !== 1 ? "s" : ""} saved`;
+					new Notice(failed ? `${saved}, ${failed} failed` : saved);
 				})
-				.catch((error) => console.error(error));
+				.catch((error) => {
+					console.error(error);
+					new Notice(`Couldn't get blocks from ${channel.title}.`);
+				});
 		};
 
 		const modal = new ChannelsModal(
@@ -193,14 +199,17 @@ export default class Commands {
 			.then((channels) => {
 				events.trigger("channels-load", channels);
 			})
-			.catch((error) => console.error(error));
+			.catch((error) => {
+				console.error(error);
+				new Notice("Couldn't load your channels.");
+			});
 	}
 
 	async pullBlock() {
 		const currentFile = this.app.workspace.getActiveFile();
 
 		if (!currentFile) {
-			new Notice("No active file open"); // TODO: Improve error message
+			new Notice("Open a note to pull it from are.na.");
 			return;
 		}
 
@@ -230,8 +239,13 @@ export default class Commands {
 						frontData,
 						Utils.getDownloadable(block),
 					);
+
+					new Notice("Note updated");
 				})
-				.catch((error) => console.error(error));
+				.catch((error) => {
+					console.error(error);
+					new Notice(`Couldn't pull block: ${error.message}`);
+				});
 		} else {
 			new Notice("No block id found in frontmatter");
 		}
@@ -241,7 +255,7 @@ export default class Commands {
 		const currentFile = this.app.workspace.getActiveFile();
 
 		if (!currentFile) {
-			new Notice("No active file open"); // TODO: Improve error message
+			new Notice("Open a note to go to its block on are.na.");
 			return;
 		}
 
@@ -282,14 +296,17 @@ export default class Commands {
 						Utils.getDownloadable(block),
 					)
 					.then(() => {
-						new Notice(`Note created`);
+						new Notice("Note saved");
 						return this.app.workspace.openLinkText(
 							this.fileHandler.getSafeFilename(fileName),
 							"",
 							true,
 						);
 					})
-					.catch((error) => console.error(error));
+					.catch((error) => {
+						console.error(error);
+						new Notice(`Couldn't save block: ${error.message}`);
+					});
 			};
 
 			new BlocksModal(this.app, channel, events, onSelectBlock).open();
@@ -299,7 +316,10 @@ export default class Commands {
 				.then((blocks) => {
 					events.trigger("blocks-load", blocks);
 				})
-				.catch((error) => console.error(error));
+				.catch((error) => {
+					console.error(error);
+					new Notice("Couldn't load blocks from that channel.");
+				});
 		};
 
 		new ChannelsModal(
@@ -315,7 +335,10 @@ export default class Commands {
 			.then((channels) => {
 				events.trigger("channels-load", channels);
 			})
-			.catch((error) => console.error(error));
+			.catch((error) => {
+				console.error(error);
+				new Notice("Couldn't load your channels.");
+			});
 	}
 
 	async getBlockByID() {
@@ -339,7 +362,7 @@ export default class Commands {
 							Utils.getDownloadable(block),
 						);
 
-						new Notice(`Note created`);
+						new Notice("Note saved");
 						await this.app.workspace.openLinkText(
 							this.fileHandler.getSafeFilename(fileName),
 							"",
@@ -348,8 +371,10 @@ export default class Commands {
 					})
 					.catch((error) => {
 						console.error(error);
-						new Notice("Error getting block");
+						new Notice(`Couldn't import block: ${error.message}`);
 					});
+			} else {
+				new Notice("That doesn't look like an are.na block URL or id.");
 			}
 		}).open();
 	}
