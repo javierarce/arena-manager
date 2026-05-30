@@ -4,29 +4,28 @@ Publish content from [Obsidian](https://obsidian.md) to [Are.na](https://www.are
 
 ### Commands
 
-Currently this plugin offers 5 commands:
+Currently this plugin offers 6 commands:
 
 | Command                      | Description                                                                                         |
 | :--------------------------- | :-------------------------------------------------------------------------------------------------- |
-| `Get blocks from channel`    | Get all the blocks from a channel and create a new note in Obsidian with the content of each block. |
-| `Pull block`                 | Updates the current open note with the content of a block from Are.na.                              |
-| `Push note`                  | Pushes the content of the current open note to a block in Are.na.                                   |
-| `Get block from Are.na`      | Creates a new note with the content of a block from your Are.na account.                            |
-| `Get block by its ID or URL` | Creates a new note with the content of a block from Are.na by its ID or URL.                        |
-| `Go to block in Are.na`      | Opens the block in the Are.na website.                                                              |
+| Get blocks from channel      | Get all the blocks from a channel and create a new note in Obsidian with the content of each block. |
+| Pull block                   | Updates the current open note with the content of a block from Are.na.                              |
+| Push note                    | Pushes the content of the current open note to a block in Are.na.                                   |
+| Get block from Are.na        | Creates a new note with the content of a block from your Are.na account.                            |
+| Get block by its ID or URL   | Creates a new note with the content of a block from Are.na by its ID or URL.                        |
+| Go to block in Are.na        | Opens the block in the Are.na website.                                                              |
 
 ### Installation
 
 1. [Install the plugin](https://obsidian.md/plugins?id=arena-manager) and enable it.
-2. Create a new Are.na application at [https://are.na/developers](https://are.na/developers).
-   You can use any valid URL in the `Redirect URI` field.
-3. Make sure the application has **read and write** access (write access is required to publish blocks and channels back to Are.na).
-4. Submit the form and copy the `Personal Access Token`.
-5. Open the plugin settings page and set the following options:
+2. Create a 'Personal Access Token` at [https://are.na/developers](https://are.na/developers) with **read and write** access (write access is required to publish blocks and channels back to Are.na).
+3. Submit the form and copy the `Personal Access Token`.
+4. Open the plugin settings page and set the following options:
     - **Personal Access Token**: the `Personal Access Token` you copied earlier.
     - **Username**: Your Are.na slug (e.g., `username` in `https://www.are.na/username`).
     - **Folder**: The folder where you want to store the notes (the folder is called `arena` by default).
-6. You are done! Use any of the commands above to interact with your Are.na blocks and channels.
+
+And you are done! Use any of the commands above to interact with your Are.na blocks and channels.
 
 ### Attachments download
 
@@ -37,7 +36,7 @@ The plugin doesn’t download attachments by default. If you want to download th
 
 ### Frontmatter structure
 
-When you get a block from Are.na, the plugin will add some frontmatter automatically to allow syncronizing your note and the block.
+When you get a block from Are.na, the plugin will add some frontmatter automatically to allow synchronizing your note and the block.
 
 | Property     | Description                                                |
 | :----------- | :--------------------------------------------------------- |
@@ -54,7 +53,7 @@ When you get a block from Are.na, the plugin will add some frontmatter automatic
 -   [x] Fetch all the user's channels.
 -   [x] Attachment offline support.
 -   [x] Getting blocks by their ID or URL.
--   [ ] Avoid overiding the frontmatter when pulling a block.
+-   [ ] Avoid overriding the frontmatter when pulling a block.
 -   [ ] Template system (from [this issue](https://github.com/javierarce/arena-manager/issues/1))
 -   [ ] Getting blocks to folders outside of the Are.na directory designated in the settings.
 -   [ ] Getting blocks from other users’ channels.
