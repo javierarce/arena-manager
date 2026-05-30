@@ -18,14 +18,15 @@ Currently this plugin offers 5 commands:
 ### Installation
 
 1. [Install the plugin](https://obsidian.md/plugins?id=arena-manager) and enable it.
-2. Create a new Are.na application at [https://dev.are.na/oauth/applications](https://dev.are.na/oauth/applications).
+2. Create a new Are.na application at [https://are.na/developers](https://are.na/developers).
    You can use any valid URL in the `Redirect URI` field.
-3. Submit the form and copy the `Personal Access Token`.
-4. Open the plugin settings page and set the following options:
+3. Make sure the application has **read and write** access (write access is required to publish blocks and channels back to Are.na).
+4. Submit the form and copy the `Personal Access Token`.
+5. Open the plugin settings page and set the following options:
     - **Personal Access Token**: the `Personal Access Token` you copied earlier.
     - **Username**: Your Are.na slug (e.g., `username` in `https://www.are.na/username`).
     - **Folder**: The folder where you want to store the notes (the folder is called `arena` by default).
-5. You are done! Use any of the commands above to interact with your Are.na blocks and channels.
+6. You are done! Use any of the commands above to interact with your Are.na blocks and channels.
 
 ### Attachments download
 

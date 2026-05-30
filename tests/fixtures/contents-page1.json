@@ -1,0 +1,180 @@
+{
+  "data": [
+    {
+      "id": 9613792,
+      "type": "Image",
+      "base_type": "Block",
+      "title": "Sitterwerk, Dynamic Order, 2006",
+      "content": null,
+      "description": {
+        "markdown": "When thinking about what the future of publishing may look like, I was reminded of Sitterwerk\u2019s Dynamic Library (thank you Jayme). This library uses RFID technology to digitally track and systemize the volumes that run throughout its space. This technology frees the library from traditional modes of organization, creating novel ways to experience the content. Each user of the collection can shape the space in new combinations and enjoy serendipitous discoveries. The interactive workspace is accompanied by a digital library, which catalogues the inventory in real time. The tables throughout the library are lined with RFID antennas that track the books lying on the table\u2019s surface, and upload them directly into a digital space. An individual can use this as a private archive throughout the process of research. The archive can then be printed into a physical booklet, or \u201cBibliozine,\u201d which can then be added back to the library. \nI think what is so interesting about The Dynamic Order in Sitterwerk is that it is an intersection between the physical, the haptic, the digital, and the personal. The dynamism of the space creates a new sense of accessibility and enriches the research process. \nModes of publication continue to morph and flourish, and I wonder how combinations between the new and the old, between technology and the analogue, will produce novel ways of publishing. \n\nhttps://www.sitterwerk.ch/En/Dynamische-Ordnung",
+        "html": "<p>When thinking about what the future of publishing may look like, I was reminded of Sitterwerk\u2019s Dynamic Library (thank you Jayme). This library uses RFID technology to digitally track and systemize the volumes that run throughout its space. This technology frees the library from traditional modes of organization, creating novel ways to experience the content. Each user of the collection can shape the space in new combinations and enjoy serendipitous discoveries. The interactive workspace is accompanied by a digital library, which catalogues the inventory in real time. The tables throughout the library are lined with RFID antennas that track the books lying on the table\u2019s surface, and upload them directly into a digital space. An individual can use this as a private archive throughout the process of research. The archive can then be printed into a physical booklet, or \u201cBibliozine,\u201d which can then be added back to the library. <br>\nI think what is so interesting about The Dynamic Order in Sitterwerk is that it is an intersection between the physical, the haptic, the digital, and the personal. The dynamism of the space creates a new sense of accessibility and enriches the research process. <br>\nModes of publication continue to morph and flourish, and I wonder how combinations between the new and the old, between technology and the analogue, will produce novel ways of publishing. </p>\n\n<p><a href=\"https://www.sitterwerk.ch/En/Dynamische-Ordnung\" target=\"_blank\" rel=\"nofollow noopener\">https://www.sitterwerk.ch/En/Dynamische-Ordnung</a></p>",
+        "plain": "When thinking about what the future of publishing may look like, I was reminded of Sitterwerk\u2019s Dynamic Library (thank you Jayme). This library uses RFID technology to digitally track and systemize the volumes that run throughout its space. This technology frees the library from traditional modes of organization, creating novel ways to experience the content. Each user of the collection can shape the space in new combinations and enjoy serendipitous discoveries. The interactive workspace is accompanied by a digital library, which catalogues the inventory in real time. The tables throughout the library are lined with RFID antennas that track the books lying on the table\u2019s surface, and upload them directly into a digital space. An individual can use this as a private archive throughout the process of research. The archive can then be printed into a physical booklet, or \u201cBibliozine,\u201d which can then be added back to the library. \nI think what is so interesting about The Dynamic Order in Sitterwerk is that it is an intersection between the physical, the haptic, the digital, and the personal. The dynamism of the space creates a new sense of accessibility and enriches the research process. \nModes of publication continue to morph and flourish, and I wonder how combinations between the new and the old, between technology and the analogue, will produce novel ways of publishing. \nhttps://www.sitterwerk.ch/En/Dynamische-Ordnung"
+      },
+      "image": {
+        "src": "https://d2w9rnfcy7mm78.cloudfront.net/9613792/original_08c351c5d78860d9bdb194cd6b4a7dd6.jpg?1606117715",
+        "large": {
+          "src": "https://images.are.na/eyJidWNrZXQiOiJhcmVuYV9pbWFnZXMiLCJrZXkiOiI5NjEzNzkyL29yaWdpbmFsXzA4YzM1MWM1ZDc4ODYwZDliZGIxOTRjZDZiNGE3ZGQ2LmpwZyIsImVkaXRzIjp7InJlc2l6ZSI6eyJ3aWR0aCI6MTgwMCwiaGVpZ2h0IjoxODAwLCJmaXQiOiJpbnNpZGUiLCJ3aXRob3V0RW5sYXJnZW1lbnQiOnRydWV9LCJ3ZWJwIjp7InF1YWxpdHkiOjc1fSwianBlZyI6eyJxdWFsaXR5Ijo3NX0sInJvdGF0ZSI6bnVsbH19",
+          "src_2x": "https://images.are.na/eyJidWNrZXQiOiJhcmVuYV9pbWFnZXMiLCJrZXkiOiI5NjEzNzkyL29yaWdpbmFsXzA4YzM1MWM1ZDc4ODYwZDliZGIxOTRjZDZiNGE3ZGQ2LmpwZyIsImVkaXRzIjp7InJlc2l6ZSI6eyJ3aWR0aCI6MzYwMCwiaGVpZ2h0IjozNjAwLCJmaXQiOiJpbnNpZGUiLCJ3aXRob3V0RW5sYXJnZW1lbnQiOnRydWV9LCJ3ZWJwIjp7InF1YWxpdHkiOjc1fSwianBlZyI6eyJxdWFsaXR5Ijo3NX0sInJvdGF0ZSI6bnVsbH19",
+          "width": 1800,
+          "height": 1076
+        },
+        "medium": {
+          "src": "https://images.are.na/eyJidWNrZXQiOiJhcmVuYV9pbWFnZXMiLCJrZXkiOiI5NjEzNzkyL29yaWdpbmFsXzA4YzM1MWM1ZDc4ODYwZDliZGIxOTRjZDZiNGE3ZGQ2LmpwZyIsImVkaXRzIjp7InJlc2l6ZSI6eyJ3aWR0aCI6MTIwMCwiaGVpZ2h0IjoxMjAwLCJmaXQiOiJpbnNpZGUiLCJ3aXRob3V0RW5sYXJnZW1lbnQiOnRydWV9LCJ3ZWJwIjp7InF1YWxpdHkiOjc1fSwianBlZyI6eyJxdWFsaXR5Ijo3NX0sInJvdGF0ZSI6bnVsbH19",
+          "src_2x": "https://images.are.na/eyJidWNrZXQiOiJhcmVuYV9pbWFnZXMiLCJrZXkiOiI5NjEzNzkyL29yaWdpbmFsXzA4YzM1MWM1ZDc4ODYwZDliZGIxOTRjZDZiNGE3ZGQ2LmpwZyIsImVkaXRzIjp7InJlc2l6ZSI6eyJ3aWR0aCI6MjQwMCwiaGVpZ2h0IjoyNDAwLCJmaXQiOiJpbnNpZGUiLCJ3aXRob3V0RW5sYXJnZW1lbnQiOnRydWV9LCJ3ZWJwIjp7InF1YWxpdHkiOjc1fSwianBlZyI6eyJxdWFsaXR5Ijo3NX0sInJvdGF0ZSI6bnVsbH19",
+          "width": 1200,
+          "height": 717
+        },
+        "small": {
+          "src": "https://images.are.na/eyJidWNrZXQiOiJhcmVuYV9pbWFnZXMiLCJrZXkiOiI5NjEzNzkyL29yaWdpbmFsXzA4YzM1MWM1ZDc4ODYwZDliZGIxOTRjZDZiNGE3ZGQ2LmpwZyIsImVkaXRzIjp7InJlc2l6ZSI6eyJ3aWR0aCI6NDAwLCJoZWlnaHQiOjQwMCwiZml0IjoiaW5zaWRlIiwid2l0aG91dEVubGFyZ2VtZW50Ijp0cnVlfSwid2VicCI6eyJxdWFsaXR5Ijo3NX0sImpwZWciOnsicXVhbGl0eSI6NzV9LCJyb3RhdGUiOm51bGx9fQ==",
+          "src_2x": "https://images.are.na/eyJidWNrZXQiOiJhcmVuYV9pbWFnZXMiLCJrZXkiOiI5NjEzNzkyL29yaWdpbmFsXzA4YzM1MWM1ZDc4ODYwZDliZGIxOTRjZDZiNGE3ZGQ2LmpwZyIsImVkaXRzIjp7InJlc2l6ZSI6eyJ3aWR0aCI6ODAwLCJoZWlnaHQiOjgwMCwiZml0IjoiaW5zaWRlIiwid2l0aG91dEVubGFyZ2VtZW50Ijp0cnVlfSwid2VicCI6eyJxdWFsaXR5Ijo3NX0sImpwZWciOnsicXVhbGl0eSI6NzV9LCJyb3RhdGUiOm51bGx9fQ==",
+          "width": 400,
+          "height": 239
+        },
+        "square": {
+          "src": "https://images.are.na/eyJidWNrZXQiOiJhcmVuYV9pbWFnZXMiLCJrZXkiOiI5NjEzNzkyL29yaWdpbmFsXzA4YzM1MWM1ZDc4ODYwZDliZGIxOTRjZDZiNGE3ZGQ2LmpwZyIsImVkaXRzIjp7InJlc2l6ZSI6eyJ3aWR0aCI6MTIwMCwiaGVpZ2h0IjoxMjAwLCJmaXQiOiJpbnNpZGUiLCJ3aXRob3V0RW5sYXJnZW1lbnQiOnRydWV9LCJ3ZWJwIjp7InF1YWxpdHkiOjc1fSwianBlZyI6eyJxdWFsaXR5Ijo3NX0sInJvdGF0ZSI6bnVsbH19",
+          "src_2x": "https://images.are.na/eyJidWNrZXQiOiJhcmVuYV9pbWFnZXMiLCJrZXkiOiI5NjEzNzkyL29yaWdpbmFsXzA4YzM1MWM1ZDc4ODYwZDliZGIxOTRjZDZiNGE3ZGQ2LmpwZyIsImVkaXRzIjp7InJlc2l6ZSI6eyJ3aWR0aCI6MjQwMCwiaGVpZ2h0IjoyNDAwLCJmaXQiOiJpbnNpZGUiLCJ3aXRob3V0RW5sYXJnZW1lbnQiOnRydWV9LCJ3ZWJwIjp7InF1YWxpdHkiOjc1fSwianBlZyI6eyJxdWFsaXR5Ijo3NX0sInJvdGF0ZSI6bnVsbH19",
+          "width": 1200,
+          "height": 717
+        },
+        "content_type": "image/jpeg",
+        "filename": "08c351c5d78860d9bdb194cd6b4a7dd6.jpg"
+      },
+      "attachment": null,
+      "source": null,
+      "user": {
+        "id": 194023,
+        "slug": "rooby-scoobydoo",
+        "name": "Rooby Scoobydoo"
+      },
+      "connection": {
+        "id": 62105961,
+        "position": 128,
+        "pinned": false
+      }
+    },
+    {
+      "id": 4929062,
+      "type": "Text",
+      "base_type": "Block",
+      "title": null,
+      "content": {
+        "markdown": "\u201cAny fact becomes important when it\u2019s connected to another.\u201d \n\n\u2015 Umberto Eco, *Foucault\u2019s Pendulum*",
+        "html": "<p>\u201cAny fact becomes important when it\u2019s connected to another.\u201d </p>\n\n<p>\u2015 Umberto Eco, <em>Foucault\u2019s Pendulum</em></p>",
+        "plain": "\u201cAny fact becomes important when it\u2019s connected to another.\u201d \n\u2015 Umberto Eco, Foucault\u2019s Pendulum"
+      },
+      "description": null,
+      "image": null,
+      "attachment": null,
+      "source": null,
+      "user": {
+        "id": 9240,
+        "slug": "chad-mazzola",
+        "name": "Chad Mazzola"
+      },
+      "connection": {
+        "id": 7664444,
+        "position": 125,
+        "pinned": false
+      }
+    },
+    {
+      "id": 1453989,
+      "type": "Text",
+      "base_type": "Block",
+      "title": "Ambient communities of knowledge",
+      "content": {
+        "markdown": "In summary, rather than learning by replicating the performance of others or by acquiring knowledge transmitted in instruction, we suggest that learning occurs through centripetal participation in the learning curriculum of the ambient community. Because the place of knowledge is within a community of practice, questions of learning must be addressed within the developmental cycles of that community, a recommendation which creates a diagnostic tool for distinguishing among communities of practice.",
+        "html": "<p>In summary, rather than learning by replicating the performance of others or by acquiring knowledge transmitted in instruction, we suggest that learning occurs through centripetal participation in the learning curriculum of the ambient community. Because the place of knowledge is within a community of practice, questions of learning must be addressed within the developmental cycles of that community, a recommendation which creates a diagnostic tool for distinguishing among communities of practice.</p>",
+        "plain": "In summary, rather than learning by replicating the performance of others or by acquiring knowledge transmitted in instruction, we suggest that learning occurs through centripetal participation in the learning curriculum of the ambient community. Because the place of knowledge is within a community of practice, questions of learning must be addressed within the developmental cycles of that community, a recommendation which creates a diagnostic tool for distinguishing among communities of practice."
+      },
+      "description": {
+        "markdown": "From Situated Learning: Legitimate Peripheral Participation (Wenger &amp; Lave 1991)",
+        "html": "<p>From Situated Learning: Legitimate Peripheral Participation (Wenger &amp; Lave 1991)</p>",
+        "plain": "From Situated Learning: Legitimate Peripheral Participation (Wenger &amp; Lave 1991)"
+      },
+      "image": null,
+      "attachment": null,
+      "source": null,
+      "user": {
+        "id": 8743,
+        "slug": "toby-shorin",
+        "name": "Toby Shorin"
+      },
+      "connection": {
+        "id": 2748033,
+        "position": 123,
+        "pinned": false
+      }
+    },
+    {
+      "id": 1829595,
+      "type": "Link",
+      "base_type": "Block",
+      "title": "Joan Watson",
+      "content": null,
+      "description": {
+        "markdown": "Up From Down Under... Just a Hop, Skip and a Jump (parts 1a, 1b, 1c, 1d, 1e), or the more highfalutin' title of the Artist as Museum, is an ongoing and forever expanding project in four parts re-presenting the interactive and collaborative spirit that I've been committed to for more than 30 years.Each part of the project is the result of my investigation into the basic building block units involved with the systems that most intimately affect the quality of our everyday lives and our artwork.",
+        "html": "<p>Up From Down Under... Just a Hop, Skip and a Jump (parts 1a, 1b, 1c, 1d, 1e), or the more highfalutin&#39; title of the Artist as Museum, is an ongoing and forever expanding project in four parts re-presenting the interactive and collaborative spirit that I&#39;ve been committed to for more than 30 years.Each part of the project is the result of my investigation into the basic building block units involved with the systems that most intimately affect the quality of our everyday lives and our artwork.</p>",
+        "plain": "Up From Down Under... Just a Hop, Skip and a Jump (parts 1a, 1b, 1c, 1d, 1e), or the more highfalutin' title of the Artist as Museum, is an ongoing and forever expanding project in four parts re-presenting the interactive and collaborative spirit that I've been committed to for more than 30 years.Each part of the project is the result of my investigation into the basic building block units involved with the systems that most intimately affect the quality of our everyday lives and our artwork."
+      },
+      "image": {
+        "src": "https://d2w9rnfcy7mm78.cloudfront.net/1829595/original_df7291cd8148a8b2272cea7c583d3304?1519946559",
+        "large": {
+          "src": "https://images.are.na/eyJidWNrZXQiOiJhcmVuYV9pbWFnZXMiLCJrZXkiOiIxODI5NTk1L29yaWdpbmFsX2RmNzI5MWNkODE0OGE4YjIyNzJjZWE3YzU4M2QzMzA0IiwiZWRpdHMiOnsicmVzaXplIjp7IndpZHRoIjoxODAwLCJoZWlnaHQiOjE4MDAsImZpdCI6Imluc2lkZSIsIndpdGhvdXRFbmxhcmdlbWVudCI6dHJ1ZX0sIndlYnAiOnsicXVhbGl0eSI6NzV9LCJqcGVnIjp7InF1YWxpdHkiOjc1fSwicm90YXRlIjpudWxsfX0=",
+          "src_2x": "https://images.are.na/eyJidWNrZXQiOiJhcmVuYV9pbWFnZXMiLCJrZXkiOiIxODI5NTk1L29yaWdpbmFsX2RmNzI5MWNkODE0OGE4YjIyNzJjZWE3YzU4M2QzMzA0IiwiZWRpdHMiOnsicmVzaXplIjp7IndpZHRoIjozNjAwLCJoZWlnaHQiOjM2MDAsImZpdCI6Imluc2lkZSIsIndpdGhvdXRFbmxhcmdlbWVudCI6dHJ1ZX0sIndlYnAiOnsicXVhbGl0eSI6NzV9LCJqcGVnIjp7InF1YWxpdHkiOjc1fSwicm90YXRlIjpudWxsfX0=",
+          "width": 1800,
+          "height": 1800
+        },
+        "medium": {
+          "src": "https://images.are.na/eyJidWNrZXQiOiJhcmVuYV9pbWFnZXMiLCJrZXkiOiIxODI5NTk1L29yaWdpbmFsX2RmNzI5MWNkODE0OGE4YjIyNzJjZWE3YzU4M2QzMzA0IiwiZWRpdHMiOnsicmVzaXplIjp7IndpZHRoIjoxMjAwLCJoZWlnaHQiOjEyMDAsImZpdCI6Imluc2lkZSIsIndpdGhvdXRFbmxhcmdlbWVudCI6dHJ1ZX0sIndlYnAiOnsicXVhbGl0eSI6NzV9LCJqcGVnIjp7InF1YWxpdHkiOjc1fSwicm90YXRlIjpudWxsfX0=",
+          "src_2x": "https://images.are.na/eyJidWNrZXQiOiJhcmVuYV9pbWFnZXMiLCJrZXkiOiIxODI5NTk1L29yaWdpbmFsX2RmNzI5MWNkODE0OGE4YjIyNzJjZWE3YzU4M2QzMzA0IiwiZWRpdHMiOnsicmVzaXplIjp7IndpZHRoIjoyNDAwLCJoZWlnaHQiOjI0MDAsImZpdCI6Imluc2lkZSIsIndpdGhvdXRFbmxhcmdlbWVudCI6dHJ1ZX0sIndlYnAiOnsicXVhbGl0eSI6NzV9LCJqcGVnIjp7InF1YWxpdHkiOjc1fSwicm90YXRlIjpudWxsfX0=",
+          "width": 1200,
+          "height": 1200
+        },
+        "small": {
+          "src": "https://images.are.na/eyJidWNrZXQiOiJhcmVuYV9pbWFnZXMiLCJrZXkiOiIxODI5NTk1L29yaWdpbmFsX2RmNzI5MWNkODE0OGE4YjIyNzJjZWE3YzU4M2QzMzA0IiwiZWRpdHMiOnsicmVzaXplIjp7IndpZHRoIjo0MDAsImhlaWdodCI6NDAwLCJmaXQiOiJpbnNpZGUiLCJ3aXRob3V0RW5sYXJnZW1lbnQiOnRydWV9LCJ3ZWJwIjp7InF1YWxpdHkiOjc1fSwianBlZyI6eyJxdWFsaXR5Ijo3NX0sInJvdGF0ZSI6bnVsbH19",
+          "src_2x": "https://images.are.na/eyJidWNrZXQiOiJhcmVuYV9pbWFnZXMiLCJrZXkiOiIxODI5NTk1L29yaWdpbmFsX2RmNzI5MWNkODE0OGE4YjIyNzJjZWE3YzU4M2QzMzA0IiwiZWRpdHMiOnsicmVzaXplIjp7IndpZHRoIjo4MDAsImhlaWdodCI6ODAwLCJmaXQiOiJpbnNpZGUiLCJ3aXRob3V0RW5sYXJnZW1lbnQiOnRydWV9LCJ3ZWJwIjp7InF1YWxpdHkiOjc1fSwianBlZyI6eyJxdWFsaXR5Ijo3NX0sInJvdGF0ZSI6bnVsbH19",
+          "width": 400,
+          "height": 400
+        },
+        "square": {
+          "src": "https://images.are.na/eyJidWNrZXQiOiJhcmVuYV9pbWFnZXMiLCJrZXkiOiIxODI5NTk1L29yaWdpbmFsX2RmNzI5MWNkODE0OGE4YjIyNzJjZWE3YzU4M2QzMzA0IiwiZWRpdHMiOnsicmVzaXplIjp7IndpZHRoIjoxMjAwLCJoZWlnaHQiOjEyMDAsImZpdCI6Imluc2lkZSIsIndpdGhvdXRFbmxhcmdlbWVudCI6dHJ1ZX0sIndlYnAiOnsicXVhbGl0eSI6NzV9LCJqcGVnIjp7InF1YWxpdHkiOjc1fSwicm90YXRlIjpudWxsfX0=",
+          "src_2x": "https://images.are.na/eyJidWNrZXQiOiJhcmVuYV9pbWFnZXMiLCJrZXkiOiIxODI5NTk1L29yaWdpbmFsX2RmNzI5MWNkODE0OGE4YjIyNzJjZWE3YzU4M2QzMzA0IiwiZWRpdHMiOnsicmVzaXplIjp7IndpZHRoIjoyNDAwLCJoZWlnaHQiOjI0MDAsImZpdCI6Imluc2lkZSIsIndpdGhvdXRFbmxhcmdlbWVudCI6dHJ1ZX0sIndlYnAiOnsicXVhbGl0eSI6NzV9LCJqcGVnIjp7InF1YWxpdHkiOjc1fSwicm90YXRlIjpudWxsfX0=",
+          "width": 1200,
+          "height": 1200
+        },
+        "content_type": "image/png",
+        "filename": "df7291cd8148a8b2272cea7c583d3304"
+      },
+      "attachment": null,
+      "source": {
+        "url": "https://www.mica.edu/About_MICA/People/Faculty/Faculty_List_by_Last_Name/Joan_Watson.html",
+        "title": "Joan Watson",
+        "provider": {
+          "name": "www.mica.edu",
+          "url": "https://www.mica.edu"
+        }
+      },
+      "user": {
+        "id": 17,
+        "slug": "damon-zucconi",
+        "name": "Damon Zucconi"
+      },
+      "connection": {
+        "id": 2276207,
+        "position": 124,
+        "pinned": false
+      }
+    }
+  ],
+  "meta": {
+    "current_page": 1,
+    "next_page": 2,
+    "prev_page": null,
+    "per_page": 4,
+    "total_pages": 2,
+    "total_count": 5,
+    "has_more_pages": true
+  }
+}

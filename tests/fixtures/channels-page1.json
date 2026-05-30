@@ -1,0 +1,45 @@
+{
+  "data": [
+    {
+      "id": 2998264,
+      "type": "Channel",
+      "slug": "sects-in-the-city-by-shelby-shaw",
+      "title": "Sects in the City (by Shelby Shaw)",
+      "description": {
+        "markdown": "Quotes, references, and images from Shelby Shaw\u2019s piece [\u201cSects in the City\u201d] (https://www.are.na/editorial/sects-in-the-city) on Are.na Editorial. This is a partial transcript of [episode two] (https://radio.montezpress.com/#/show/3470) of our show with Montez Press Radio.\n\nhttps://www.are.na/editorial/sects-in-the-city\n\n ",
+        "html": "<p>Quotes, references, and images from Shelby Shaw\u2019s piece <a href=\"https://www.are.na/editorial/sects-in-the-city\" target=\"_blank\" rel=\"nofollow noopener\">\u201cSects in the City\u201d</a> on Are.na Editorial. This is a partial transcript of <a href=\"https://radio.montezpress.com/#/show/3470\" target=\"_blank\" rel=\"nofollow noopener\">episode two</a> of our show with Montez Press Radio.</p>\n\n<p><a href=\"https://www.are.na/editorial/sects-in-the-city\" target=\"_blank\" rel=\"nofollow noopener\">https://www.are.na/editorial/sects-in-the-city</a></p>",
+        "plain": "Quotes, references, and images from Shelby Shaw\u2019s piece \u201cSects in the City\u201d (https://www.are.na/editorial/sects-in-the-city) on Are.na Editorial. This is a partial transcript of episode two (https://radio.montezpress.com/#/show/3470) of our show with Montez Press Radio.\nhttps://www.are.na/editorial/sects-in-the-city"
+      },
+      "visibility": "closed",
+      "counts": {
+        "blocks": 10,
+        "channels": 1,
+        "contents": 11,
+        "collaborators": 1
+      }
+    },
+    {
+      "id": 3006986,
+      "type": "Channel",
+      "slug": "things-people-recommend-to-me-kcms-hbvaey",
+      "title": "Things people recommend to me",
+      "description": null,
+      "visibility": "closed",
+      "counts": {
+        "blocks": 1,
+        "channels": 0,
+        "contents": 1,
+        "collaborators": 0
+      }
+    }
+  ],
+  "meta": {
+    "current_page": 1,
+    "next_page": 2,
+    "prev_page": null,
+    "per_page": 2,
+    "total_pages": 2,
+    "total_count": 3,
+    "has_more_pages": true
+  }
+}

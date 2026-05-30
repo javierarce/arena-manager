@@ -52,16 +52,12 @@ export default class Commands {
 							currentFileContent,
 							frontmatter,
 						)
-						.then((response: any) => {
-							if (response.status === 422) {
-								new Notice(`Block not updated`);
-								return;
-							}
+						.then(() => {
 							new Notice("Block updated");
 						})
 						.catch((error) => {
 							console.error(error);
-							new Notice("Block not updated");
+							new Notice(`Block not updated: ${error.message}`);
 						});
 				} else {
 					const onSelectChannel = async (channel: Channel) => {
@@ -73,11 +69,6 @@ export default class Commands {
 								frontmatter,
 							)
 							.then((response: any) => {
-								if (response.code === 422) {
-									new Notice(`Error: ${response.message}`);
-									return;
-								}
-
 								this.app.fileManager.processFrontMatter(
 									currentFile,
 									async (frontmatter) => {
@@ -89,11 +80,11 @@ export default class Commands {
 									},
 								);
 
-								new Notice("Block updated");
+								new Notice("Block created");
 							})
 							.catch((error) => {
 								console.error(error);
-								new Notice("Block not updated");
+								new Notice(`Block not created: ${error.message}`);
 							});
 					};
 

@@ -1,16 +1,18 @@
 export const ARENA_BLOCK_URL = "https://www.are.na/block/";
-export const ARENA_APP_URL = "https://dev.are.na/oauth/applications";
+export const ARENA_APP_URL = "https://are.na/developers";
 
+/**
+ * Internal, normalized channel shape used throughout the plugin.
+ * Mapped from the raw v3 response (see {@link ArenaChannel}) by `normalizeChannel`.
+ */
 export interface Channel {
 	id: number;
 	slug: string;
 	title: string;
-	body: string;
 	length: number;
-	status: string;
-	class: string;
-	base_class: string;
-	contents: Block[];
+	body?: string;
+	status?: string;
+	contents?: Block[];
 }
 
 export interface Provider {
@@ -28,7 +30,7 @@ export interface Attachment {
 	extension: string;
 	file_name: string;
 	file_size: number;
-	file_size_display: string;
+	file_size_display?: string;
 	url: string;
 }
 
@@ -75,28 +77,119 @@ export interface Image {
 	updated_at: string;
 }
 
+/**
+ * Internal, normalized block shape used throughout the plugin.
+ *
+ * The are.na API returns a different shape per version (see `ArenaBlock` for
+ * the raw v3 response); `normalizeBlock` maps that raw shape into this one so
+ * the rest of the plugin only ever deals with these fields.
+ */
 export interface Block {
-	user: User;
 	id: number;
-	attachment: Attachment;
-	base_class: string;
-	image: Image;
 	class: string;
-	comment_count: number;
-	connected_at: string;
-	connected_by_user_id: number;
-	connected_by_user_slug: string;
-	connected_by_username: string;
-	connection_id: number;
+	title: string;
 	content: string;
-	content_html: string;
-	created_at: string;
 	description: string;
-	description_html: string;
-	embed: string;
 	generated_title: string;
 	position: number;
-	slug: string;
-	source: Source;
+	image?: { display: { url: string } };
+	attachment?: Attachment;
+	user?: { slug: string };
+	source?: { title: string; url: string };
+}
+
+// --- Raw are.na v3 API response shapes ---
+
+/** Text-like fields (content, description) are objects in v3, not strings. */
+export interface ArenaText {
+	markdown: string | null;
+	html: string | null;
+}
+
+export interface ArenaImageSize {
+	src: string;
+}
+
+export interface ArenaImage {
+	src: string;
+	large?: ArenaImageSize;
+	medium?: ArenaImageSize;
+	small?: ArenaImageSize;
+	square?: ArenaImageSize;
+}
+
+export interface ArenaAttachment {
+	filename: string;
+	file_extension: string;
+	content_type: string;
+	file_size: number;
+	url: string;
+}
+
+export interface ArenaSource {
+	url: string;
 	title: string;
+	provider?: Provider;
+}
+
+export interface ArenaUser {
+	id: number;
+	slug: string;
+	name: string;
+}
+
+export interface ArenaConnection {
+	id: number;
+	position: number;
+}
+
+export interface ArenaBlock {
+	id: number;
+	type: string;
+	base_type: string;
+	title: string | null;
+	content: ArenaText | null;
+	description: ArenaText | null;
+	image: ArenaImage | null;
+	attachment: ArenaAttachment | null;
+	source: ArenaSource | null;
+	user: ArenaUser | null;
+	connection: ArenaConnection | null;
+}
+
+export interface ArenaMeta {
+	current_page: number;
+	total_pages: number;
+	total_count: number;
+	per_page: number;
+	next_page: number | null;
+	prev_page: number | null;
+	has_more_pages: boolean;
+}
+
+export interface ArenaContentsResponse {
+	data: ArenaBlock[];
+	meta: ArenaMeta;
+}
+
+export interface ArenaChannelCounts {
+	blocks: number;
+	channels: number;
+	contents: number;
+	collaborators: number;
+}
+
+export interface ArenaChannel {
+	id: number;
+	type: string;
+	slug: string;
+	title: string | null;
+	description: ArenaText | string | null;
+	visibility: string;
+	counts: ArenaChannelCounts;
+}
+
+export interface ArenaChannelsResponse {
+	data: ArenaChannel[];
+	meta: ArenaMeta;
 }
