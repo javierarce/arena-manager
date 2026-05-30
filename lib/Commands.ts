@@ -10,7 +10,6 @@ import { Settings } from "./Settings";
 export default class Commands {
 	app: App;
 	settings: Settings;
-	events: Events;
 	arena: Arena;
 	fileHandler: FileHandler;
 
@@ -18,7 +17,6 @@ export default class Commands {
 		this.app = app;
 		this.settings = settings;
 		this.arena = new Arena(settings);
-		this.events = new Events();
 		this.fileHandler = new FileHandler(app, settings);
 	}
 
@@ -60,6 +58,10 @@ export default class Commands {
 							new Notice(`Block not updated: ${error.message}`);
 						});
 				} else {
+					// A fresh emitter per invocation; a shared one would
+					// accumulate modal listeners that never get removed.
+					const events = new Events();
+
 					const onSelectChannel = async (channel: Channel) => {
 						await this.arena
 							.createBlockWithContentAndTitle(
@@ -92,12 +94,12 @@ export default class Commands {
 						this.app,
 						this.settings,
 						true,
-						this.events,
+						events,
 						onSelectChannel,
 					).open();
 
 					this.arena.getChannelsFromUser().then((channels) => {
-						this.events.trigger("channels-load", channels);
+						events.trigger("channels-load", channels);
 					});
 				}
 			},
@@ -105,6 +107,8 @@ export default class Commands {
 	}
 
 	async getBlocksFromChannel() {
+		const events = new Events();
+
 		const callback = async (channel: Channel) => {
 			let notesCreated = 0;
 			new Notice(`Getting blocks from ${channel.title}…`);
@@ -157,7 +161,7 @@ export default class Commands {
 					}
 
 					new Notice(
-						`${notesCreated} note${notesCreated > 1 ? "s" : ""} created`,
+						`${notesCreated} note${notesCreated !== 1 ? "s" : ""} created`,
 					);
 				});
 		};
@@ -166,14 +170,14 @@ export default class Commands {
 			this.app,
 			this.settings,
 			false,
-			this.events,
+			events,
 			callback,
 		);
 
 		modal.open();
 
 		this.arena.getChannelsFromUser().then((channels) => {
-			this.events.trigger("channels-load", channels);
+			events.trigger("channels-load", channels);
 		});
 	}
 
@@ -239,6 +243,8 @@ export default class Commands {
 	}
 
 	async getBlockFromArena() {
+		const events = new Events();
+
 		const onSelectChannel = async (channel: Channel) => {
 			const onSelectBlock = async (block: Block, channel: Channel) => {
 				const fileName = `${block.generated_title}`;
@@ -270,12 +276,12 @@ export default class Commands {
 			new BlocksModal(
 				this.app,
 				channel,
-				this.events,
+				events,
 				onSelectBlock,
 			).open();
 
 			this.arena.getBlocksFromChannel(channel.slug).then((channels) => {
-				this.events.trigger("blocks-load", channels);
+				events.trigger("blocks-load", channels);
 			});
 		};
 
@@ -283,12 +289,12 @@ export default class Commands {
 			this.app,
 			this.settings,
 			false,
-			this.events,
+			events,
 			onSelectChannel,
 		).open();
 
 		this.arena.getChannelsFromUser().then((channels) => {
-			this.events.trigger("channels-load", channels);
+			events.trigger("channels-load", channels);
 		});
 	}
 

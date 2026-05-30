@@ -80,7 +80,10 @@ export default class Arena {
 		const newTitle =
 			typeof frontmatter.title === "string" ? frontmatter.title : title;
 		const description = frontmatter.description;
-		content = content.replace(/---[\s\S]*?---\n/g, "");
+		// Strip only the leading YAML frontmatter block, not every `---`-delimited
+		// run: an unanchored/global match would also delete thematic breaks or
+		// fenced examples that legitimately live in the body.
+		content = content.replace(/^---\n[\s\S]*?\n---\n/, "");
 
 		const response = await requestUrl({
 			url: `https://api.are.na/v3/blocks/${id}`,
@@ -155,7 +158,10 @@ export default class Arena {
 	): Promise<any> {
 		const title = frontmatter.title || generated_title;
 		const description = frontmatter.description;
-		content = content.replace(/---[\s\S]*?---\n/g, "");
+		// Strip only the leading YAML frontmatter block, not every `---`-delimited
+		// run: an unanchored/global match would also delete thematic breaks or
+		// fenced examples that legitimately live in the body.
+		content = content.replace(/^---\n[\s\S]*?\n---\n/, "");
 
 		// v3 creates blocks at POST /v3/blocks: `content` became `value`, and the
 		// target channel moved from the URL into `channel_ids` (which accepts slugs).
