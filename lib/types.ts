@@ -92,7 +92,11 @@ export interface Block {
 	description: string;
 	generated_title: string;
 	position: number;
-	image?: { display: { url: string } };
+	image?: {
+		display: { url: string };
+		filename?: string;
+		content_type?: string;
+	};
 	attachment?: Attachment;
 	user?: { slug: string };
 	source?: { title: string; url: string };
@@ -116,6 +120,8 @@ export interface ArenaImage {
 	medium?: ArenaImageSize;
 	small?: ArenaImageSize;
 	square?: ArenaImageSize;
+	filename?: string;
+	content_type?: string;
 }
 
 export interface ArenaAttachment {

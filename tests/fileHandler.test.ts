@@ -13,12 +13,15 @@ const settings = {
 
 // A tiny in-memory vault: a path -> frontmatter map is enough for the
 // filename-collision logic, which only reads existence and `blockid`.
-function makeHandler(files: Record<string, { blockid?: number }> = {}) {
+function makeHandler(
+	files: Record<string, { blockid?: number | string }> = {},
+) {
 	// Real TFile instances so the code's `instanceof TFile` narrowing holds.
 	const makeFile = (path: string, frontmatter: Record<string, unknown>) => {
 		const file = Object.assign(new TFile(), { path });
-		(file as unknown as { frontmatter: Record<string, unknown> }).frontmatter =
-			frontmatter;
+		(
+			file as unknown as { frontmatter: Record<string, unknown> }
+		).frontmatter = frontmatter;
 		return file;
 	};
 
@@ -42,6 +45,27 @@ describe("FileHandler.getSafeFilename", () => {
 	it("replaces slashes, backslashes and colons with spaces", () => {
 		const fh = makeHandler();
 		expect(fh.getSafeFilename("a/b:c\\d")).toBe("a b c d");
+	});
+
+	it("replaces Obsidian-breaking characters `| # ^ [ ]` (issue #2)", () => {
+		const fh = makeHandler();
+		expect(fh.getSafeFilename("a|b#c^d[e]f")).toBe("a b c d e f");
+	});
+
+	it('replaces other illegal filename characters `* ? " < >`', () => {
+		const fh = makeHandler();
+		expect(fh.getSafeFilename('a*b?c"d<e>f')).toBe("a b c d e f");
+	});
+
+	it("collapses the whitespace left by adjacent unsafe characters", () => {
+		const fh = makeHandler();
+		expect(fh.getSafeFilename("a [|] b")).toBe("a b");
+		expect(fh.getSafeFilename("  [trimmed]  ")).toBe("trimmed");
+	});
+
+	it("falls back to 'Untitled' when nothing usable remains", () => {
+		expect(makeHandler().getSafeFilename("///")).toBe("Untitled");
+		expect(makeHandler().getSafeFilename("")).toBe("Untitled");
 	});
 
 	it("leaves a clean name untouched", () => {
@@ -75,6 +99,27 @@ describe("FileHandler.getAttachmentFilenameFromTitle", () => {
 	it("sanitizes unsafe characters in the resulting name", () => {
 		const fh = makeHandler();
 		expect(fh.getAttachmentFilenameFromTitle(att, "a/b")).toBe("a b.png");
+	});
+
+	it("appends the block id so same-titled blocks don't collide", () => {
+		const fh = makeHandler();
+		expect(fh.getAttachmentFilenameFromTitle(att, "My Photo", 42)).toBe(
+			"My Photo-42.png",
+		);
+		// The id goes before the extension even when the title carries one.
+		expect(fh.getAttachmentFilenameFromTitle(att, "My Photo.png", 42)).toBe(
+			"My Photo-42.png",
+		);
+	});
+
+	it("omits the block id suffix when none is given", () => {
+		const fh = makeHandler();
+		expect(fh.getAttachmentFilenameFromTitle(att, "My Photo")).toBe(
+			"My Photo.png",
+		);
+		expect(fh.getAttachmentFilenameFromTitle(att, "My Photo", "")).toBe(
+			"My Photo.png",
+		);
 	});
 });
 
@@ -111,5 +156,37 @@ describe("FileHandler.findNextAvailableFileName", () => {
 		expect(await fh.findNextAvailableFileName("arena", "note", 5)).toBe(
 			"note-1",
 		);
+	});
+
+	it("reuses the file when the stored blockid is a string (issue #5)", async () => {
+		// A string-typed frontmatter blockid must not be treated as a new block,
+		// otherwise every re-download spawns a `note-1`, `note-2`, … duplicate.
+		const fh = makeHandler({ "arena/note.md": { blockid: "5" } });
+		expect(await fh.findNextAvailableFileName("arena", "note", 5)).toBe(
+			"note",
+		);
+	});
+});
+
+describe("FileHandler.sameBlockId", () => {
+	const fh = makeHandler();
+
+	it("matches across number/string representations", () => {
+		expect(fh.sameBlockId(5, 5)).toBe(true);
+		expect(fh.sameBlockId("5", 5)).toBe(true);
+		expect(fh.sameBlockId(5, "5")).toBe(true);
+		expect(fh.sameBlockId("5", "5")).toBe(true);
+	});
+
+	it("does not match different ids", () => {
+		expect(fh.sameBlockId(5, 9)).toBe(false);
+		expect(fh.sameBlockId("5", "9")).toBe(false);
+	});
+
+	it("treats missing/empty ids as no match (never two nulls)", () => {
+		expect(fh.sameBlockId(null, null)).toBe(false);
+		expect(fh.sameBlockId(undefined, 5)).toBe(false);
+		expect(fh.sameBlockId(5, "")).toBe(false);
+		expect(fh.sameBlockId("abc", 5)).toBe(false);
 	});
 });

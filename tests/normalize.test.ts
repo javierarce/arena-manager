@@ -1,5 +1,10 @@
 import { describe, it, expect } from "vitest";
-import { normalizeBlock, normalizeChannel, deriveTitle } from "../lib/normalize";
+import {
+	normalizeBlock,
+	normalizeChannel,
+	deriveTitle,
+	decodeEntities,
+} from "../lib/normalize";
 import { ArenaBlock, ArenaChannel } from "../lib/types";
 import page1 from "./fixtures/contents-page1.json";
 import page2 from "./fixtures/contents-page2.json";
@@ -31,7 +36,58 @@ describe("deriveTitle", () => {
 	});
 });
 
+describe("decodeEntities", () => {
+	it("decodes the three entities are.na's markdown escapes (`& < >`)", () => {
+		expect(decodeEntities("&gt; quote")).toBe("> quote");
+		expect(decodeEntities("Wenger &amp; Lave")).toBe("Wenger & Lave");
+		expect(decodeEntities("a &lt; b")).toBe("a < b");
+	});
+
+	it("only unwinds one level of a doubly-escaped entity", () => {
+		expect(decodeEntities("&amp;gt;")).toBe("&gt;");
+	});
+
+	it("leaves quotes/apostrophes alone (are.na keeps them raw in markdown)", () => {
+		// Decoding these would corrupt descriptions that contain the literal text.
+		expect(decodeEntities("say &quot;hi&quot; it&#39;s fine")).toBe(
+			"say &quot;hi&quot; it&#39;s fine",
+		);
+	});
+
+	it("leaves plain markdown untouched", () => {
+		expect(decodeEntities("> a real blockquote *with* emphasis")).toBe(
+			"> a real blockquote *with* emphasis",
+		);
+	});
+});
+
 describe("normalizeBlock", () => {
+	it("decodes HTML entities in the description (v3 leaves it escaped)", () => {
+		// The fixture description contains "Wenger &amp; Lave".
+		const block = normalizeBlock(textTitled);
+		expect(textTitled.description?.markdown).toContain("&amp;");
+		expect(block.description).not.toContain("&amp;");
+		expect(block.description).toContain("Wenger & Lave");
+	});
+
+	it("decodes a blockquote `>` in a description", () => {
+		const raw = {
+			id: 1,
+			type: "Text",
+			description: { markdown: "&gt; quoted note" },
+		} as unknown as ArenaBlock;
+		expect(normalizeBlock(raw).description).toBe("> quoted note");
+	});
+
+	it("leaves content unchanged (v3 already decodes it)", () => {
+		const raw = {
+			id: 1,
+			type: "Text",
+			content: { markdown: "> already decoded & fine" },
+		} as unknown as ArenaBlock;
+		expect(normalizeBlock(raw).content).toBe("> already decoded & fine");
+	});
+
 	it("maps v3 `type` to `class`", () => {
 		expect(normalizeBlock(image).class).toBe("Image");
 		expect(normalizeBlock(link).class).toBe("Link");
@@ -71,6 +127,12 @@ describe("normalizeBlock", () => {
 		expect(block.image?.display.url).toBe(
 			image.image?.large?.src ?? image.image?.src,
 		);
+	});
+
+	it("keeps the image filename and content type for local downloads", () => {
+		const block = normalizeBlock(image);
+		expect(block.image?.filename).toBe(image.image?.filename);
+		expect(block.image?.content_type).toBe(image.image?.content_type);
 	});
 
 	it("renames attachment fields (filename/file_extension)", () => {

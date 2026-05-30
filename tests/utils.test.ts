@@ -130,6 +130,87 @@ describe("Utils.getBlockAttachment", () => {
 	});
 });
 
+describe("Utils.getDownloadable", () => {
+	const base: Block = {
+		id: 99,
+		class: "Image",
+		title: "",
+		content: "",
+		description: "",
+		generated_title: "x",
+		position: 0,
+	};
+
+	it("returns the real attachment for Attachment blocks", () => {
+		const attachment = {
+			extension: "pdf",
+			file_name: "doc.pdf",
+			file_size: 10,
+			url: "https://files/doc.pdf",
+		};
+		const block: Block = { ...base, class: "Attachment", attachment };
+		expect(Utils.getDownloadable(block)).toBe(attachment);
+	});
+
+	it("derives an attachment from an Image block's image", () => {
+		const block: Block = {
+			...base,
+			class: "Image",
+			image: {
+				display: { url: "https://cdn/resized" },
+				filename: "abc123.png",
+				content_type: "image/png",
+			},
+		};
+		expect(Utils.getDownloadable(block)).toEqual({
+			url: "https://cdn/resized",
+			extension: "png",
+			file_name: "abc123.png",
+			file_size: 0,
+		});
+	});
+
+	it("also handles Link blocks that carry a preview image", () => {
+		const block: Block = {
+			...base,
+			class: "Link",
+			image: { display: { url: "https://cdn/x" }, content_type: "image/gif" },
+		};
+		expect(Utils.getDownloadable(block)?.extension).toBe("gif");
+	});
+
+	it("derives the extension from content type when filename is unusable", () => {
+		const block: Block = {
+			...base,
+			image: {
+				display: { url: "https://cdn/x" },
+				content_type: "image/jpeg",
+			},
+		};
+		const d = Utils.getDownloadable(block);
+		// jpeg normalizes to jpg, and the file name falls back to the block id.
+		expect(d?.extension).toBe("jpg");
+		expect(d?.file_name).toBe("99.jpg");
+	});
+
+	it("falls back to jpg when there is no filename or content type", () => {
+		const block: Block = {
+			...base,
+			image: { display: { url: "https://cdn/x" } },
+		};
+		expect(Utils.getDownloadable(block)?.extension).toBe("jpg");
+	});
+
+	it("returns undefined for an Image/Link block with no image", () => {
+		expect(Utils.getDownloadable({ ...base, class: "Image" })).toBeUndefined();
+		expect(Utils.getDownloadable({ ...base, class: "Link" })).toBeUndefined();
+	});
+
+	it("returns undefined for Text blocks", () => {
+		expect(Utils.getDownloadable({ ...base, class: "Text" })).toBeUndefined();
+	});
+});
+
 describe("Utils.hasRequiredSettings", () => {
 	const base: Settings = {
 		accessToken: "token",

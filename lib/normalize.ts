@@ -1,6 +1,30 @@
 import { ArenaBlock, ArenaChannel, Block, Channel } from "./types";
 
 /**
+ * Decode the HTML entities are.na's markdown escaping produces.
+ *
+ * are.na's markdown escapes exactly three HTML-significant characters —
+ * `&` -> `&amp;`, `<` -> `&lt;`, `>` -> `&gt;` (quotes and apostrophes are left
+ * raw). The v3 migration decoded these on the `content` field — a blockquote
+ * `> quote` comes back as `> quote` — but left them escaped on `description`
+ * values that predate the migration, so `Wenger &amp; Lave` reaches the note
+ * verbatim and a `>` in a description renders as `&gt;`. We decode them here to
+ * match how v3 already treats `content`.
+ *
+ * Scoped to just these three entities on purpose: decoding more (e.g. `&quot;`)
+ * would corrupt descriptions that legitimately contain that literal text, since
+ * are.na never escapes those in markdown.
+ */
+export function decodeEntities(text: string): string {
+	return text
+		.replace(/&lt;/g, "<")
+		.replace(/&gt;/g, ">")
+		// `&amp;` last so a doubly-escaped entity (`&amp;gt;`) only unwinds one
+		// level, mirroring a single HTML-decode pass.
+		.replace(/&amp;/g, "&");
+}
+
+/**
  * Derive a human-readable title from a block's text content.
  *
  * v3 dropped the `generated_title` field that v2 provided for untitled blocks
@@ -26,8 +50,9 @@ export function deriveTitle(markdown: string | null | undefined): string {
  *
  * v3 renamed and reshaped several fields relative to v2:
  *   - `class`        -> `type`
- *   - `content`      string -> `content.markdown`
- *   - `description`  string -> `description.markdown`
+ *   - `content`      string -> `content.markdown` (v3 HTML-decodes this)
+ *   - `description`  string -> `description.markdown` (pre-migration values are
+ *                              still HTML-escaped; see {@link decodeEntities})
  *   - `position`     -> `connection.position`
  *   - `generated_title` was removed (see {@link deriveTitle})
  *   - `image.display.url` -> `image.large.src` (falling back to `image.src`)
@@ -40,8 +65,10 @@ export function normalizeBlock(raw: ArenaBlock): Block {
 		id: raw.id,
 		class: raw.type,
 		title,
+		// content is HTML-decoded by v3; old (pre-migration) descriptions are not,
+		// so we decode them to keep markdown (blockquotes, `&`, `<`) intact.
 		content: raw.content?.markdown ?? "",
-		description: raw.description?.markdown ?? "",
+		description: decodeEntities(raw.description?.markdown ?? ""),
 		// v2 always populated generated_title and several call sites use it
 		// directly as a file name. v3 dropped it, so we always provide a usable
 		// value: the real title when present, otherwise one derived from content.
@@ -52,6 +79,10 @@ export function normalizeBlock(raw: ArenaBlock): Block {
 	if (raw.image) {
 		block.image = {
 			display: { url: raw.image.large?.src ?? raw.image.src },
+			// Kept so images can be downloaded locally with a sensible extension
+			// (the display URL is a resized CDN link with no file extension).
+			filename: raw.image.filename,
+			content_type: raw.image.content_type,
 		};
 	}
 

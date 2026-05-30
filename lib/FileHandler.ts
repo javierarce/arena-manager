@@ -13,7 +13,32 @@ export default class Filemanager {
 	}
 
 	getSafeFilename(fileName: string) {
-		return fileName.replace(/[\\/:]/g, " ");
+		// Replace characters that are illegal in file names on common platforms
+		// (`\ / : * ? " < >`) or that break Obsidian links, tags and block refs
+		// (`| # ^ [ ]`) with spaces, then collapse the resulting whitespace.
+		// Falls back to "Untitled" if nothing usable remains. See issue #2.
+		const safe = fileName
+			.replace(/[\\/:*?"<>|#^[\]]/g, " ")
+			.replace(/\s+/g, " ")
+			.trim();
+		return safe || "Untitled";
+	}
+
+	// Block ids round-trip through YAML frontmatter, where they can come back as
+	// either a number (freshly written) or a string (manual edits, quoting, older
+	// notes — note getFilesWithBlockId coerces with Number() for the same reason).
+	// A strict `===` would treat "123" and 123 as different blocks and re-create
+	// the note on every sync, so compare them numerically.
+	sameBlockId(
+		a: string | number | null | undefined,
+		b: string | number | null | undefined,
+	): boolean {
+		if (a == null || a === "" || b == null || b === "") {
+			return false;
+		}
+		const na = Number(a);
+		const nb = Number(b);
+		return Number.isFinite(na) && Number.isFinite(nb) && na === nb;
 	}
 
 	async doesAttachmentExist(fileName: string): Promise<boolean> {
@@ -49,6 +74,7 @@ export default class Filemanager {
 				attachment,
 				folderPath,
 				fileName,
+				frontData.blockid,
 			);
 			if (attachmentFileName) {
 				content = `![[${attachmentFileName}]]`;
@@ -109,10 +135,20 @@ export default class Filemanager {
 		await this.writeFrontmatter(file, frontData);
 	}
 
-	getAttachmentFilenameFromTitle(attachment: Attachment, title?: string) {
+	getAttachmentFilenameFromTitle(
+		attachment: Attachment,
+		title?: string,
+		blockId?: string | number,
+	) {
 		let name = title || attachment.file_name;
 		if (name.endsWith(`.${attachment.extension}`)) {
 			name = name.slice(0, -attachment.extension.length - 1);
+		}
+		// Fold in the globally-unique block id so two blocks that share a title
+		// can't overwrite each other's media in a shared attachments folder, while
+		// re-downloading the same block keeps writing to the same file.
+		if (blockId != null && blockId !== "") {
+			name = `${name}-${blockId}`;
 		}
 		return this.getSafeFilename(`${name}.${attachment.extension}`);
 	}
@@ -121,6 +157,7 @@ export default class Filemanager {
 		attachment: Attachment,
 		folderPath: string,
 		filename: string,
+		blockId?: string | number,
 	): Promise<string | null> {
 		const request = await requestUrl(attachment.url);
 
@@ -148,6 +185,7 @@ export default class Filemanager {
 			const attachmentFileName = this.getAttachmentFilenameFromTitle(
 				attachment,
 				filename,
+				blockId,
 			);
 
 			let attachmentFolderPath = this.settings.attachments_folder;
@@ -191,6 +229,9 @@ export default class Filemanager {
 		baseFileName: string,
 		blockId: string | number,
 	): Promise<string> {
+		// Sanitize up front so the existence checks below probe the same paths
+		// the file actually gets written to (see createFileWithFrontmatter).
+		baseFileName = this.getSafeFilename(baseFileName);
 		let counter = 0;
 		let filePath = `${folderPath}/${baseFileName}.md`;
 
@@ -200,7 +241,7 @@ export default class Filemanager {
 			if (file instanceof TFile) {
 				const frontmatter = await this.getFrontmatterFromFile(file);
 
-				if (frontmatter.blockid === blockId) {
+				if (this.sameBlockId(frontmatter.blockid, blockId)) {
 					// If we find a file with the same blockId, reuse this file
 					if (counter === 0) {
 						return baseFileName;
@@ -228,7 +269,7 @@ export default class Filemanager {
 	) {
 		const blockId = await this.getBlockIdFromFile(file);
 
-		if (blockId === frontData?.blockid) {
+		if (this.sameBlockId(blockId, frontData?.blockid)) {
 			if (
 				this.settings.download_attachments_type !==
 					DOWNLOAD_ATTACHMENTS_TYPES.none &&
@@ -238,6 +279,7 @@ export default class Filemanager {
 					attachment,
 					folderPath,
 					fileName,
+					frontData.blockid,
 				);
 				if (attachmentFileName) {
 					content = `![[${attachmentFileName}]]`;
@@ -269,6 +311,7 @@ export default class Filemanager {
 					attachment,
 					folderPath,
 					newFilename,
+					frontData.blockid,
 				);
 				if (attachmentFileName) {
 					content = `![[${attachmentFileName}]]`;
@@ -323,6 +366,7 @@ export default class Filemanager {
 					attachment,
 					folderPath,
 					fileName,
+					frontData.blockid,
 				);
 				if (attachmentFileName) {
 					content = `![[${attachmentFileName}]]`;

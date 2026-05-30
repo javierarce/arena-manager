@@ -105,12 +105,14 @@ export class ArenaManagerSettingTab extends PluginSettingTab {
 
 	addSelect() {
 		new Setting(this.containerEl)
-			.setName("Download attachments")
-			.setDesc("Choose where to download the attachments.")
+			.setName("Download attachments and images")
+			.setDesc(
+				"Choose where to download attachments and images for offline use.",
+			)
 			.addDropdown((dropdown) => {
 				dropdown.addOption(
 					DOWNLOAD_ATTACHMENTS_TYPES.none,
-					"Don't download attachments",
+					"Don't download (embed remote image URLs)",
 				);
 				dropdown.addOption(
 					DOWNLOAD_ATTACHMENTS_TYPES.channel,
