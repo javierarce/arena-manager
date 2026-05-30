@@ -284,7 +284,7 @@ export default class Commands {
 					.then(() => {
 						new Notice(`Note created`);
 						return this.app.workspace.openLinkText(
-							fileName,
+							this.fileHandler.getSafeFilename(fileName),
 							"",
 							true,
 						);
@@ -340,7 +340,11 @@ export default class Commands {
 						);
 
 						new Notice(`Note created`);
-						await this.app.workspace.openLinkText(fileName, "", true);
+						await this.app.workspace.openLinkText(
+							this.fileHandler.getSafeFilename(fileName),
+							"",
+							true,
+						);
 					})
 					.catch((error) => {
 						console.error(error);

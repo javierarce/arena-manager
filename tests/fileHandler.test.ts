@@ -44,6 +44,27 @@ describe("FileHandler.getSafeFilename", () => {
 		expect(fh.getSafeFilename("a/b:c\\d")).toBe("a b c d");
 	});
 
+	it("replaces Obsidian-breaking characters `| # ^ [ ]` (issue #2)", () => {
+		const fh = makeHandler();
+		expect(fh.getSafeFilename("a|b#c^d[e]f")).toBe("a b c d e f");
+	});
+
+	it("replaces other illegal filename characters `* ? \" < >`", () => {
+		const fh = makeHandler();
+		expect(fh.getSafeFilename('a*b?c"d<e>f')).toBe("a b c d e f");
+	});
+
+	it("collapses the whitespace left by adjacent unsafe characters", () => {
+		const fh = makeHandler();
+		expect(fh.getSafeFilename("a [|] b")).toBe("a b");
+		expect(fh.getSafeFilename("  [trimmed]  ")).toBe("trimmed");
+	});
+
+	it("falls back to 'Untitled' when nothing usable remains", () => {
+		expect(makeHandler().getSafeFilename("///")).toBe("Untitled");
+		expect(makeHandler().getSafeFilename("")).toBe("Untitled");
+	});
+
 	it("leaves a clean name untouched", () => {
 		expect(makeHandler().getSafeFilename("My Note")).toBe("My Note");
 	});

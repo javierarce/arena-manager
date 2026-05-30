@@ -13,7 +13,15 @@ export default class Filemanager {
 	}
 
 	getSafeFilename(fileName: string) {
-		return fileName.replace(/[\\/:]/g, " ");
+		// Replace characters that are illegal in file names on common platforms
+		// (`\ / : * ? " < >`) or that break Obsidian links, tags and block refs
+		// (`| # ^ [ ]`) with spaces, then collapse the resulting whitespace.
+		// Falls back to "Untitled" if nothing usable remains. See issue #2.
+		const safe = fileName
+			.replace(/[\\/:*?"<>|#^[\]]/g, " ")
+			.replace(/\s+/g, " ")
+			.trim();
+		return safe || "Untitled";
 	}
 
 	async doesAttachmentExist(fileName: string): Promise<boolean> {
@@ -191,6 +199,9 @@ export default class Filemanager {
 		baseFileName: string,
 		blockId: string | number,
 	): Promise<string> {
+		// Sanitize up front so the existence checks below probe the same paths
+		// the file actually gets written to (see createFileWithFrontmatter).
+		baseFileName = this.getSafeFilename(baseFileName);
 		let counter = 0;
 		let filePath = `${folderPath}/${baseFileName}.md`;
 
