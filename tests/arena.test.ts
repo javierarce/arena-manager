@@ -207,6 +207,21 @@ describe("Arena.updateBlockWithContentAndBlockID", () => {
 		expect(body.content).toBe("actual body");
 	});
 
+	it("keeps `---` in the body (only the leading frontmatter is stripped)", async () => {
+		mockRequestUrl.mockResolvedValueOnce({ status: 200, json: {} } as never);
+
+		const arena = new Arena(settings);
+		await arena.updateBlockWithContentAndBlockID(
+			42,
+			"t",
+			"---\nblockid: 1\n---\nbefore\n\n---\n\nafter",
+			{},
+		);
+
+		const body = JSON.parse(mockRequestUrl.mock.calls[0][0].body);
+		expect(body.content).toBe("before\n\n---\n\nafter");
+	});
+
 	it("throws the are.na error message on a failure status", async () => {
 		mockRequestUrl.mockResolvedValueOnce({
 			status: 422,

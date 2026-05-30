@@ -26,9 +26,9 @@ export const DEFAULT_SETTINGS: Settings = {
 	download_attachments_type: DOWNLOAD_ATTACHMENTS_TYPES.none,
 };
 
-export class TemplaterSettingTab extends PluginSettingTab {
+export class ArenaManagerSettingTab extends PluginSettingTab {
 	constructor(private plugin: ArenaManagerPlugin) {
-		super(app, plugin);
+		super(plugin.app, plugin);
 		this.plugin = plugin;
 	}
 

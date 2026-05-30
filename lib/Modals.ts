@@ -1,11 +1,4 @@
-import {
-	Setting,
-	Events,
-	App,
-	Modal,
-	FuzzySuggestModal,
-	FuzzyMatch,
-} from "obsidian";
+import { Events, App, Modal, FuzzySuggestModal, FuzzyMatch } from "obsidian";
 import { Settings } from "./Settings";
 import { Channel, Block } from "./types";
 
@@ -34,7 +27,7 @@ export class ChannelsModal extends FuzzySuggestModal<Channel> {
 				$prompt.removeClass("is-loading");
 			}
 			this.setInstructions(INSTRUCTIONS);
-			super.onOpen();
+			void super.onOpen();
 		});
 	}
 
@@ -59,12 +52,10 @@ export class ChannelsModal extends FuzzySuggestModal<Channel> {
 
 	renderSuggestion(match: FuzzyMatch<Channel>, el: HTMLElement): void {
 		if (match.item.status === "private") {
-			el.createEl("span").addClass("icon-lock");
+			el.createSpan({ cls: "icon-lock" });
 		}
-		el.createEl("span", { text: match.item.title });
-		el.createEl("span", { text: match.item.length.toString() }).addClass(
-			"count",
-		);
+		el.createSpan({ text: match.item.title });
+		el.createSpan({ text: match.item.length.toString() }).addClass("count");
 	}
 
 	getItems(): Channel[] {
@@ -103,7 +94,7 @@ export class BlocksModal extends FuzzySuggestModal<Block> {
 				$prompt.removeClass("is-loading");
 			}
 			this.setInstructions(INSTRUCTIONS);
-			super.onOpen();
+			void super.onOpen();
 		});
 	}
 
@@ -156,16 +147,11 @@ export class URLModal extends Modal {
 		const { contentEl } = this;
 		this.titleEl.setText("Enter Are.na block id or URL");
 
-		contentEl.createEl("form", {}, (form) => {
-			form.style.display = "flex";
-			form.style.gap = "12px";
-
+		contentEl.createEl("form", { cls: "arena-manager-url-form" }, (form) => {
 			const input = form.createEl("input", {
 				placeholder: "https://are.na/block/5",
 				type: "text",
-			}) as HTMLInputElement;
-
-			input.style.width = "100%";
+			});
 
 			input.onchange = (_event) => {
 				this.url = input.value;

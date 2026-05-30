@@ -1,9 +1,23 @@
-import { Block } from "./types";
+import { Attachment, Block } from "./types";
 import { Settings } from "./Settings";
 
 class Utils {
 	createPermalinkFromTitle(title: string) {
 		return title.replace(/-\d+$/, "");
+	}
+
+	// Image and Link blocks have no usable markdown body; represent them as an
+	// embedded image pointing at the block's display URL. Everything else uses
+	// its own content.
+	getBlockContent(block: Block): string {
+		if (block.class === "Image" || block.class === "Link") {
+			return `![](${block.image?.display.url})`;
+		}
+		return block.content;
+	}
+
+	getBlockAttachment(block: Block): Attachment | undefined {
+		return block.class === "Attachment" ? block.attachment : undefined;
 	}
 
 	getFrontmatterFromBlock(block: Block, channelTitle?: string) {

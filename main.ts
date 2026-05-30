@@ -1,32 +1,23 @@
-import { Events, Plugin } from "obsidian";
+import { Plugin } from "obsidian";
 
 import {
 	Settings,
 	DEFAULT_SETTINGS,
-	TemplaterSettingTab,
+	ArenaManagerSettingTab,
 } from "./lib/Settings";
 
-import Arena from "./lib/Arena";
 import Commands from "./lib/Commands";
-import FileHandler from "./lib/FileHandler";
 import Utils from "./lib/Utils";
 
 export default class ArenaManagerPlugin extends Plugin {
 	settings: Settings;
-	events: Events;
-	arena: Arena;
-	fileHandler: FileHandler;
 	commands: Commands;
 
 	async onload() {
 		await this.loadSettings();
 		this.commands = new Commands(this.app, this.settings);
 
-		this.events = new Events();
-		this.fileHandler = new FileHandler(this.app, this.settings);
-		this.arena = new Arena(this.settings);
-
-		this.addSettingTab(new TemplaterSettingTab(this));
+		this.addSettingTab(new ArenaManagerSettingTab(this));
 
 		this.addCommand({
 			id: "get-blocks-from-channel",
@@ -34,7 +25,7 @@ export default class ArenaManagerPlugin extends Plugin {
 			checkCallback: (checking: boolean) => {
 				if (Utils.hasRequiredSettings(this.settings)) {
 					if (!checking) {
-						this.commands.getBlocksFromChannel();
+						void this.commands.getBlocksFromChannel();
 					}
 					return true;
 				}
@@ -50,7 +41,7 @@ export default class ArenaManagerPlugin extends Plugin {
 				const currentFile = this.app.workspace.getActiveFile();
 				if (currentFile && Utils.hasRequiredSettings(this.settings)) {
 					if (!checking) {
-						this.commands.pullBlock();
+						void this.commands.pullBlock();
 					}
 					return true;
 				}
@@ -67,7 +58,7 @@ export default class ArenaManagerPlugin extends Plugin {
 
 				if (currentFile && Utils.hasRequiredSettings(this.settings)) {
 					if (!checking) {
-						this.commands.pushBlock();
+						void this.commands.pushBlock();
 					}
 					return true;
 				}
@@ -82,7 +73,7 @@ export default class ArenaManagerPlugin extends Plugin {
 			checkCallback: (checking: boolean) => {
 				if (Utils.hasRequiredSettings(this.settings)) {
 					if (!checking) {
-						this.commands.getBlockFromArena();
+						void this.commands.getBlockFromArena();
 					}
 					return true;
 				}
@@ -99,7 +90,7 @@ export default class ArenaManagerPlugin extends Plugin {
 
 				if (currentFile) {
 					if (!checking) {
-						this.commands.goToBlock();
+						void this.commands.goToBlock();
 					}
 					return true;
 				}
@@ -114,7 +105,7 @@ export default class ArenaManagerPlugin extends Plugin {
 			checkCallback: (checking: boolean) => {
 				if (Utils.hasRequiredSettings(this.settings)) {
 					if (!checking) {
-						this.commands.getBlockByID();
+						void this.commands.getBlockByID();
 					}
 					return true;
 				}

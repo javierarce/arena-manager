@@ -20,6 +20,13 @@
 	margin-top: -12px;
 	opacity: 0.5;
 }
+.arena-manager-url-form {
+	display: flex;
+	gap: 12px;
+}
+.arena-manager-url-form input {
+	width: 100%;
+}
 .arena-manager-modal .icon-lock::after {
 	content: "";
 	display: block;
