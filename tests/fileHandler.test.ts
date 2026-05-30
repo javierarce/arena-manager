@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import type { App } from "obsidian";
+import { type App, TFile } from "obsidian";
 import FileHandler from "../lib/FileHandler";
 import type { Attachment } from "../lib/types";
 import type { Settings } from "../lib/Settings";
@@ -14,10 +14,18 @@ const settings = {
 // A tiny in-memory vault: a path -> frontmatter map is enough for the
 // filename-collision logic, which only reads existence and `blockid`.
 function makeHandler(files: Record<string, { blockid?: number }> = {}) {
+	// Real TFile instances so the code's `instanceof TFile` narrowing holds.
+	const makeFile = (path: string, frontmatter: Record<string, unknown>) => {
+		const file = Object.assign(new TFile(), { path });
+		(file as unknown as { frontmatter: Record<string, unknown> }).frontmatter =
+			frontmatter;
+		return file;
+	};
+
 	const app = {
 		vault: {
 			getAbstractFileByPath: (path: string) =>
-				path in files ? { path, frontmatter: files[path] } : null,
+				path in files ? makeFile(path, files[path]) : null,
 		},
 		fileManager: {
 			processFrontMatter: (

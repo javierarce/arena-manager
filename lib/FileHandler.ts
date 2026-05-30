@@ -163,7 +163,7 @@ export default class Filemanager {
 				}
 			}
 
-			this.app.vault.adapter.writeBinary(
+			await this.app.vault.adapter.writeBinary(
 				`${attachmentFolderPath}/${attachmentFileName}`,
 				request.arrayBuffer,
 			);
@@ -189,24 +189,24 @@ export default class Filemanager {
 	async findNextAvailableFileName(
 		folderPath: string,
 		baseFileName: string,
-		blockId: any,
+		blockId: string | number,
 	): Promise<string> {
 		let counter = 0;
 		let filePath = `${folderPath}/${baseFileName}.md`;
 
 		while (await this.doesFileExist(filePath)) {
-			const file = this.app.vault.getAbstractFileByPath(
-				filePath,
-			) as TFile;
+			const file = this.app.vault.getAbstractFileByPath(filePath);
 
-			const frontmatter = await this.getFrontmatterFromFile(file);
+			if (file instanceof TFile) {
+				const frontmatter = await this.getFrontmatterFromFile(file);
 
-			if (frontmatter.blockid === blockId) {
-				// If we find a file with the same blockId, we'll use this file
-				if (counter === 0) {
-					return baseFileName;
-				} else {
-					return `${baseFileName}-${counter}`;
+				if (frontmatter.blockid === blockId) {
+					// If we find a file with the same blockId, reuse this file
+					if (counter === 0) {
+						return baseFileName;
+					} else {
+						return `${baseFileName}-${counter}`;
+					}
 				}
 			}
 
@@ -384,14 +384,15 @@ export default class Filemanager {
 		}
 		await this.app.fileManager.processFrontMatter(
 			file,
-			async (frontmatter: Record<string, string | number>) => {
+			(frontmatter: Record<string, string | number>) => {
 				Object.entries(frontData).forEach(([key, value]) => {
 					frontmatter[key] = value;
 				});
 			},
 		);
 	}
-	isMarkdownFile(file: TAbstractFile): file is TFile {
+
+	isMarkdownFile(this: void, file: TAbstractFile): file is TFile {
 		return file instanceof TFile && file.extension === "md";
 	}
 

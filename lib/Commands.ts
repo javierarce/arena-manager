@@ -45,90 +45,93 @@ export default class Commands {
 
 		const currentFileContent = await this.app.vault.read(currentFile);
 
-		this.app.fileManager.processFrontMatter(
-			currentFile,
-			async (frontmatter) => {
-				const blockId = frontmatter.blockid;
-				if (blockId) {
-					const title = currentFile.basename;
+		// processFrontMatter expects a synchronous callback; the network work it
+		// triggers is fire-and-forget (its Notices report completion).
+		void this.app.fileManager.processFrontMatter(currentFile, (frontmatter) => {
+			const blockId = frontmatter.blockid;
+			if (blockId) {
+				const title = currentFile.basename;
 
-					if (frontmatter.user !== this.settings.username) {
-						return new Notice(
-							`You don't have permission to update ${frontmatter.user}'s block`,
-						);
-					}
+				if (frontmatter.user !== this.settings.username) {
+					new Notice(
+						`You don't have permission to update ${frontmatter.user}'s block`,
+					);
+					return;
+				}
 
-					await this.arena
-						.updateBlockWithContentAndBlockID(
-							blockId,
-							title,
+				void this.arena
+					.updateBlockWithContentAndBlockID(
+						blockId,
+						title,
+						currentFileContent,
+						frontmatter,
+					)
+					.then(() => {
+						new Notice("Block updated");
+					})
+					.catch((error) => {
+						console.error(error);
+						new Notice(`Block not updated: ${error.message}`);
+					});
+			} else {
+				// A fresh emitter per invocation; a shared one would
+				// accumulate modal listeners that never get removed.
+				const events = new Events();
+
+				const onSelectChannel = (channel: Channel) => {
+					void this.arena
+						.createBlockWithContentAndTitle(
 							currentFileContent,
+							currentFile.basename,
+							channel.slug,
 							frontmatter,
 						)
-						.then(() => {
-							new Notice("Block updated");
+						.then((response) => {
+							void this.app.fileManager.processFrontMatter(
+								currentFile,
+								(fm) => {
+									fm["blockid"] = response.id;
+									fm["channel"] =
+										Utils.createPermalinkFromTitle(
+											channel.title,
+										);
+								},
+							);
+
+							new Notice("Block created");
 						})
 						.catch((error) => {
 							console.error(error);
-							new Notice(`Block not updated: ${error.message}`);
+							new Notice(`Block not created: ${error.message}`);
 						});
-				} else {
-					// A fresh emitter per invocation; a shared one would
-					// accumulate modal listeners that never get removed.
-					const events = new Events();
+				};
 
-					const onSelectChannel = async (channel: Channel) => {
-						await this.arena
-							.createBlockWithContentAndTitle(
-								currentFileContent,
-								currentFile.basename,
-								channel.slug,
-								frontmatter,
-							)
-							.then((response: any) => {
-								this.app.fileManager.processFrontMatter(
-									currentFile,
-									async (frontmatter) => {
-										frontmatter["blockid"] = response.id;
-										frontmatter["channel"] =
-											Utils.createPermalinkFromTitle(
-												channel.title,
-											);
-									},
-								);
+				new ChannelsModal(
+					this.app,
+					this.settings,
+					true,
+					events,
+					onSelectChannel,
+				).open();
 
-								new Notice("Block created");
-							})
-							.catch((error) => {
-								console.error(error);
-								new Notice(`Block not created: ${error.message}`);
-							});
-					};
-
-					new ChannelsModal(
-						this.app,
-						this.settings,
-						true,
-						events,
-						onSelectChannel,
-					).open();
-
-					this.arena.getChannelsFromUser().then((channels) => {
+				void this.arena
+					.getChannelsFromUser()
+					.then((channels) => {
 						events.trigger("channels-load", channels);
-					});
-				}
-			},
-		);
+					})
+					.catch((error) => console.error(error));
+			}
+		});
 	}
 
 	async getBlocksFromChannel() {
 		const events = new Events();
 
-		const callback = async (channel: Channel) => {
+		const callback = (channel: Channel) => {
 			let notesCreated = 0;
 			new Notice(`Getting blocks from ${channel.title}…`);
 
-			this.arena
+			void this.arena
 				.getBlocksFromChannel(channel.slug)
 				.then(async (blocks) => {
 					for (const block of blocks) {
@@ -171,7 +174,8 @@ export default class Commands {
 					new Notice(
 						`${notesCreated} note${notesCreated !== 1 ? "s" : ""} created`,
 					);
-				});
+				})
+				.catch((error) => console.error(error));
 		};
 
 		const modal = new ChannelsModal(
@@ -184,9 +188,12 @@ export default class Commands {
 
 		modal.open();
 
-		this.arena.getChannelsFromUser().then((channels) => {
-			events.trigger("channels-load", channels);
-		});
+		void this.arena
+			.getChannelsFromUser()
+			.then((channels) => {
+				events.trigger("channels-load", channels);
+			})
+			.catch((error) => console.error(error));
 	}
 
 	async pullBlock() {
@@ -203,25 +210,28 @@ export default class Commands {
 		const blockId = frontMatter?.blockid as number;
 
 		if (blockId) {
-			this.arena.getBlockWithID(blockId).then(async (block) => {
-				const title = block.generated_title;
-				const channelTitle = frontMatter?.channel as string;
+			void this.arena
+				.getBlockWithID(blockId)
+				.then(async (block) => {
+					const title = block.generated_title;
+					const channelTitle = frontMatter?.channel as string;
 
-				const frontData = Utils.getFrontmatterFromBlock(
-					block,
-					channelTitle,
-				);
+					const frontData = Utils.getFrontmatterFromBlock(
+						block,
+						channelTitle,
+					);
 
-				const content = Utils.getBlockContent(block);
+					const content = Utils.getBlockContent(block);
 
-				this.fileHandler.renameFile(
-					currentFile,
-					title,
-					content,
-					frontData,
-					Utils.getBlockAttachment(block),
-				);
-			});
+					await this.fileHandler.renameFile(
+						currentFile,
+						title,
+						content,
+						frontData,
+						Utils.getBlockAttachment(block),
+					);
+				})
+				.catch((error) => console.error(error));
 		} else {
 			new Notice("No block id found in frontmatter");
 		}
@@ -235,22 +245,25 @@ export default class Commands {
 			return;
 		}
 
-		this.app.fileManager.processFrontMatter(currentFile, (frontmatter) => {
-			const blockId = frontmatter.blockid;
-			if (blockId) {
-				const url = `${ARENA_BLOCK_URL}${blockId}`;
-				window.open(url, "_blank");
-			} else {
-				new Notice("No block id found in frontmatter");
-			}
-		});
+		void this.app.fileManager.processFrontMatter(
+			currentFile,
+			(frontmatter) => {
+				const blockId = frontmatter.blockid;
+				if (blockId) {
+					const url = `${ARENA_BLOCK_URL}${blockId}`;
+					window.open(url, "_blank");
+				} else {
+					new Notice("No block id found in frontmatter");
+				}
+			},
+		);
 	}
 
 	async getBlockFromArena() {
 		const events = new Events();
 
-		const onSelectChannel = async (channel: Channel) => {
-			const onSelectBlock = async (block: Block, channel: Channel) => {
+		const onSelectChannel = (channel: Channel) => {
+			const onSelectBlock = (block: Block, channel: Channel) => {
 				const fileName = `${block.generated_title}`;
 				const frontData = Utils.getFrontmatterFromBlock(
 					block,
@@ -260,28 +273,33 @@ export default class Commands {
 
 				const content = Utils.getBlockContent(block);
 
-				await this.fileHandler.writeFile(
-					`${this.settings.folder}/${slug}`,
-					fileName,
-					content,
-					frontData,
-					Utils.getBlockAttachment(block),
-				);
-
-				new Notice(`Note created`);
-				await this.app.workspace.openLinkText(fileName, "", true);
+				void this.fileHandler
+					.writeFile(
+						`${this.settings.folder}/${slug}`,
+						fileName,
+						content,
+						frontData,
+						Utils.getBlockAttachment(block),
+					)
+					.then(() => {
+						new Notice(`Note created`);
+						return this.app.workspace.openLinkText(
+							fileName,
+							"",
+							true,
+						);
+					})
+					.catch((error) => console.error(error));
 			};
 
-			new BlocksModal(
-				this.app,
-				channel,
-				events,
-				onSelectBlock,
-			).open();
+			new BlocksModal(this.app, channel, events, onSelectBlock).open();
 
-			this.arena.getBlocksFromChannel(channel.slug).then((channels) => {
-				events.trigger("blocks-load", channels);
-			});
+			void this.arena
+				.getBlocksFromChannel(channel.slug)
+				.then((blocks) => {
+					events.trigger("blocks-load", blocks);
+				})
+				.catch((error) => console.error(error));
 		};
 
 		new ChannelsModal(
@@ -292,9 +310,12 @@ export default class Commands {
 			onSelectChannel,
 		).open();
 
-		this.arena.getChannelsFromUser().then((channels) => {
-			events.trigger("channels-load", channels);
-		});
+		void this.arena
+			.getChannelsFromUser()
+			.then((channels) => {
+				events.trigger("channels-load", channels);
+			})
+			.catch((error) => console.error(error));
 	}
 
 	async getBlockByID() {
@@ -302,7 +323,7 @@ export default class Commands {
 			const blockId = getIDFromURL(url);
 
 			if (blockId !== null && blockId > 0) {
-				this.arena
+				void this.arena
 					.getBlockWithID(blockId)
 					.then(async (block) => {
 						const fileName = `${block.generated_title}`;
@@ -319,11 +340,7 @@ export default class Commands {
 						);
 
 						new Notice(`Note created`);
-						await this.app.workspace.openLinkText(
-							fileName,
-							"",
-							true,
-						);
+						await this.app.workspace.openLinkText(fileName, "", true);
 					})
 					.catch((error) => {
 						console.error(error);
