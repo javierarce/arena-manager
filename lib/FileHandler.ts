@@ -24,6 +24,23 @@ export default class Filemanager {
 		return safe || "Untitled";
 	}
 
+	// Block ids round-trip through YAML frontmatter, where they can come back as
+	// either a number (freshly written) or a string (manual edits, quoting, older
+	// notes — note getFilesWithBlockId coerces with Number() for the same reason).
+	// A strict `===` would treat "123" and 123 as different blocks and re-create
+	// the note on every sync, so compare them numerically.
+	sameBlockId(
+		a: string | number | null | undefined,
+		b: string | number | null | undefined,
+	): boolean {
+		if (a == null || a === "" || b == null || b === "") {
+			return false;
+		}
+		const na = Number(a);
+		const nb = Number(b);
+		return Number.isFinite(na) && Number.isFinite(nb) && na === nb;
+	}
+
 	async doesAttachmentExist(fileName: string): Promise<boolean> {
 		const filePath = `${this.settings.attachments_folder}/${fileName}`;
 		return this.doesFileExist(filePath);
@@ -211,7 +228,7 @@ export default class Filemanager {
 			if (file instanceof TFile) {
 				const frontmatter = await this.getFrontmatterFromFile(file);
 
-				if (frontmatter.blockid === blockId) {
+				if (this.sameBlockId(frontmatter.blockid, blockId)) {
 					// If we find a file with the same blockId, reuse this file
 					if (counter === 0) {
 						return baseFileName;
@@ -239,7 +256,7 @@ export default class Filemanager {
 	) {
 		const blockId = await this.getBlockIdFromFile(file);
 
-		if (blockId === frontData?.blockid) {
+		if (this.sameBlockId(blockId, frontData?.blockid)) {
 			if (
 				this.settings.download_attachments_type !==
 					DOWNLOAD_ATTACHMENTS_TYPES.none &&

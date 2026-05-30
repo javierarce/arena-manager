@@ -13,12 +13,15 @@ const settings = {
 
 // A tiny in-memory vault: a path -> frontmatter map is enough for the
 // filename-collision logic, which only reads existence and `blockid`.
-function makeHandler(files: Record<string, { blockid?: number }> = {}) {
+function makeHandler(
+	files: Record<string, { blockid?: number | string }> = {},
+) {
 	// Real TFile instances so the code's `instanceof TFile` narrowing holds.
 	const makeFile = (path: string, frontmatter: Record<string, unknown>) => {
 		const file = Object.assign(new TFile(), { path });
-		(file as unknown as { frontmatter: Record<string, unknown> }).frontmatter =
-			frontmatter;
+		(
+			file as unknown as { frontmatter: Record<string, unknown> }
+		).frontmatter = frontmatter;
 		return file;
 	};
 
@@ -49,7 +52,7 @@ describe("FileHandler.getSafeFilename", () => {
 		expect(fh.getSafeFilename("a|b#c^d[e]f")).toBe("a b c d e f");
 	});
 
-	it("replaces other illegal filename characters `* ? \" < >`", () => {
+	it('replaces other illegal filename characters `* ? " < >`', () => {
 		const fh = makeHandler();
 		expect(fh.getSafeFilename('a*b?c"d<e>f')).toBe("a b c d e f");
 	});
@@ -132,5 +135,37 @@ describe("FileHandler.findNextAvailableFileName", () => {
 		expect(await fh.findNextAvailableFileName("arena", "note", 5)).toBe(
 			"note-1",
 		);
+	});
+
+	it("reuses the file when the stored blockid is a string (issue #5)", async () => {
+		// A string-typed frontmatter blockid must not be treated as a new block,
+		// otherwise every re-download spawns a `note-1`, `note-2`, … duplicate.
+		const fh = makeHandler({ "arena/note.md": { blockid: "5" } });
+		expect(await fh.findNextAvailableFileName("arena", "note", 5)).toBe(
+			"note",
+		);
+	});
+});
+
+describe("FileHandler.sameBlockId", () => {
+	const fh = makeHandler();
+
+	it("matches across number/string representations", () => {
+		expect(fh.sameBlockId(5, 5)).toBe(true);
+		expect(fh.sameBlockId("5", 5)).toBe(true);
+		expect(fh.sameBlockId(5, "5")).toBe(true);
+		expect(fh.sameBlockId("5", "5")).toBe(true);
+	});
+
+	it("does not match different ids", () => {
+		expect(fh.sameBlockId(5, 9)).toBe(false);
+		expect(fh.sameBlockId("5", "9")).toBe(false);
+	});
+
+	it("treats missing/empty ids as no match (never two nulls)", () => {
+		expect(fh.sameBlockId(null, null)).toBe(false);
+		expect(fh.sameBlockId(undefined, 5)).toBe(false);
+		expect(fh.sameBlockId(5, "")).toBe(false);
+		expect(fh.sameBlockId("abc", 5)).toBe(false);
 	});
 });
