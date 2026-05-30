@@ -1,0 +1,31 @@
+{
+  "data": [
+    {
+      "id": 3015731,
+      "type": "Channel",
+      "slug": "felt-time-by-tess-murdoch",
+      "title": "Felt Time (by Tess Murdoch) ",
+      "description": {
+        "markdown": "References, quotes, and images from Tess Murdoch\u2019s piece [\u201cFelt Time\u201d] (are.na/editorial/felt-time) on Are.na Editorial. This is a partial transcript of [episode two] (https://radio.montezpress.com/#/show/3470) of our show with Montez Press Radio.\n\nwww.are.na/editorial/felt-time\n\n",
+        "html": "<p>References, quotes, and images from Tess Murdoch\u2019s piece <a href=\"are.na/editorial/felt-time\" target=\"_blank\" rel=\"nofollow noopener\">\u201cFelt Time\u201d</a> on Are.na Editorial. This is a partial transcript of <a href=\"https://radio.montezpress.com/#/show/3470\" target=\"_blank\" rel=\"nofollow noopener\">episode two</a> of our show with Montez Press Radio.</p>\n\n<p><a href=\"http://www.are.na/editorial/felt-time\" target=\"_blank\" rel=\"nofollow noopener\">www.are.na/editorial/felt-time</a></p>",
+        "plain": "References, quotes, and images from Tess Murdoch\u2019s piece \u201cFelt Time\u201d (are.na/editorial/felt-time) on Are.na Editorial. This is a partial transcript of episode two (https://radio.montezpress.com/#/show/3470) of our show with Montez Press Radio.\nwww.are.na/editorial/felt-time (http://www.are.na/editorial/felt-time)"
+      },
+      "visibility": "closed",
+      "counts": {
+        "blocks": 17,
+        "channels": 1,
+        "contents": 18,
+        "collaborators": 1
+      }
+    }
+  ],
+  "meta": {
+    "current_page": 2,
+    "next_page": null,
+    "prev_page": 1,
+    "per_page": 2,
+    "total_pages": 2,
+    "total_count": 3,
+    "has_more_pages": false
+  }
+}
