@@ -162,7 +162,7 @@ export default class Commands {
 								fileName,
 								content,
 								frontData,
-								Utils.getBlockAttachment(block),
+								Utils.getDownloadable(block),
 							);
 							notesCreated++;
 						} catch (error) {
@@ -228,7 +228,7 @@ export default class Commands {
 						title,
 						content,
 						frontData,
-						Utils.getBlockAttachment(block),
+						Utils.getDownloadable(block),
 					);
 				})
 				.catch((error) => console.error(error));
@@ -279,7 +279,7 @@ export default class Commands {
 						fileName,
 						content,
 						frontData,
-						Utils.getBlockAttachment(block),
+						Utils.getDownloadable(block),
 					)
 					.then(() => {
 						new Notice(`Note created`);
@@ -336,7 +336,7 @@ export default class Commands {
 							fileName,
 							content,
 							frontData,
-							Utils.getBlockAttachment(block),
+							Utils.getDownloadable(block),
 						);
 
 						new Notice(`Note created`);

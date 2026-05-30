@@ -79,6 +79,10 @@ export function normalizeBlock(raw: ArenaBlock): Block {
 	if (raw.image) {
 		block.image = {
 			display: { url: raw.image.large?.src ?? raw.image.src },
+			// Kept so images can be downloaded locally with a sensible extension
+			// (the display URL is a resized CDN link with no file extension).
+			filename: raw.image.filename,
+			content_type: raw.image.content_type,
 		};
 	}
 

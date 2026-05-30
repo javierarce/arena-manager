@@ -129,6 +129,12 @@ describe("normalizeBlock", () => {
 		);
 	});
 
+	it("keeps the image filename and content type for local downloads", () => {
+		const block = normalizeBlock(image);
+		expect(block.image?.filename).toBe(image.image?.filename);
+		expect(block.image?.content_type).toBe(image.image?.content_type);
+	});
+
 	it("renames attachment fields (filename/file_extension)", () => {
 		const block = normalizeBlock(attachment);
 		expect(block.attachment).toEqual({
