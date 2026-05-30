@@ -100,6 +100,27 @@ describe("FileHandler.getAttachmentFilenameFromTitle", () => {
 		const fh = makeHandler();
 		expect(fh.getAttachmentFilenameFromTitle(att, "a/b")).toBe("a b.png");
 	});
+
+	it("appends the block id so same-titled blocks don't collide", () => {
+		const fh = makeHandler();
+		expect(fh.getAttachmentFilenameFromTitle(att, "My Photo", 42)).toBe(
+			"My Photo-42.png",
+		);
+		// The id goes before the extension even when the title carries one.
+		expect(fh.getAttachmentFilenameFromTitle(att, "My Photo.png", 42)).toBe(
+			"My Photo-42.png",
+		);
+	});
+
+	it("omits the block id suffix when none is given", () => {
+		const fh = makeHandler();
+		expect(fh.getAttachmentFilenameFromTitle(att, "My Photo")).toBe(
+			"My Photo.png",
+		);
+		expect(fh.getAttachmentFilenameFromTitle(att, "My Photo", "")).toBe(
+			"My Photo.png",
+		);
+	});
 });
 
 describe("FileHandler.findNextAvailableFileName", () => {

@@ -74,6 +74,7 @@ export default class Filemanager {
 				attachment,
 				folderPath,
 				fileName,
+				frontData.blockid,
 			);
 			if (attachmentFileName) {
 				content = `![[${attachmentFileName}]]`;
@@ -134,10 +135,20 @@ export default class Filemanager {
 		await this.writeFrontmatter(file, frontData);
 	}
 
-	getAttachmentFilenameFromTitle(attachment: Attachment, title?: string) {
+	getAttachmentFilenameFromTitle(
+		attachment: Attachment,
+		title?: string,
+		blockId?: string | number,
+	) {
 		let name = title || attachment.file_name;
 		if (name.endsWith(`.${attachment.extension}`)) {
 			name = name.slice(0, -attachment.extension.length - 1);
+		}
+		// Fold in the globally-unique block id so two blocks that share a title
+		// can't overwrite each other's media in a shared attachments folder, while
+		// re-downloading the same block keeps writing to the same file.
+		if (blockId != null && blockId !== "") {
+			name = `${name}-${blockId}`;
 		}
 		return this.getSafeFilename(`${name}.${attachment.extension}`);
 	}
@@ -146,6 +157,7 @@ export default class Filemanager {
 		attachment: Attachment,
 		folderPath: string,
 		filename: string,
+		blockId?: string | number,
 	): Promise<string | null> {
 		const request = await requestUrl(attachment.url);
 
@@ -173,6 +185,7 @@ export default class Filemanager {
 			const attachmentFileName = this.getAttachmentFilenameFromTitle(
 				attachment,
 				filename,
+				blockId,
 			);
 
 			let attachmentFolderPath = this.settings.attachments_folder;
@@ -266,6 +279,7 @@ export default class Filemanager {
 					attachment,
 					folderPath,
 					fileName,
+					frontData.blockid,
 				);
 				if (attachmentFileName) {
 					content = `![[${attachmentFileName}]]`;
@@ -297,6 +311,7 @@ export default class Filemanager {
 					attachment,
 					folderPath,
 					newFilename,
+					frontData.blockid,
 				);
 				if (attachmentFileName) {
 					content = `![[${attachmentFileName}]]`;
@@ -351,6 +366,7 @@ export default class Filemanager {
 					attachment,
 					folderPath,
 					fileName,
+					frontData.blockid,
 				);
 				if (attachmentFileName) {
 					content = `![[${attachmentFileName}]]`;
