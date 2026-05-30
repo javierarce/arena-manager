@@ -50,7 +50,9 @@ export default class Filemanager {
 				folderPath,
 				fileName,
 			);
-			content = `![[${attachmentFileName}]]`;
+			if (attachmentFileName) {
+				content = `![[${attachmentFileName}]]`;
+			}
 		}
 
 		const newName = `${folderPath}/${fileName}.md`;
@@ -119,7 +121,7 @@ export default class Filemanager {
 		attachment: Attachment,
 		folderPath: string,
 		filename: string,
-	) {
+	): Promise<string | null> {
 		const request = await requestUrl(attachment.url);
 
 		if (
@@ -237,7 +239,9 @@ export default class Filemanager {
 					folderPath,
 					fileName,
 				);
-				content = `![[${attachmentFileName}]]`;
+				if (attachmentFileName) {
+					content = `![[${attachmentFileName}]]`;
+				}
 			}
 
 			// If the blockid is the same, update the file
@@ -266,7 +270,9 @@ export default class Filemanager {
 					folderPath,
 					newFilename,
 				);
-				content = `![[${attachmentFileName}]]`;
+				if (attachmentFileName) {
+					content = `![[${attachmentFileName}]]`;
+				}
 			}
 
 			const newFile = this.getFileByFolderPathAndFileName(
@@ -318,7 +324,9 @@ export default class Filemanager {
 					folderPath,
 					fileName,
 				);
-				content = `![[${attachmentFileName}]]`;
+				if (attachmentFileName) {
+					content = `![[${attachmentFileName}]]`;
+				}
 			}
 
 			await this.createFileWithFrontmatter(

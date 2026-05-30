@@ -3,7 +3,7 @@ import { Plugin } from "obsidian";
 import {
 	Settings,
 	DEFAULT_SETTINGS,
-	TemplaterSettingTab,
+	ArenaManagerSettingTab,
 } from "./lib/Settings";
 
 import Commands from "./lib/Commands";
@@ -17,7 +17,7 @@ export default class ArenaManagerPlugin extends Plugin {
 		await this.loadSettings();
 		this.commands = new Commands(this.app, this.settings);
 
-		this.addSettingTab(new TemplaterSettingTab(this));
+		this.addSettingTab(new ArenaManagerSettingTab(this));
 
 		this.addCommand({
 			id: "get-blocks-from-channel",

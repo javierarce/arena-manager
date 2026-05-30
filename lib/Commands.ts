@@ -7,6 +7,21 @@ import { ARENA_BLOCK_URL, Channel, Block } from "./types";
 import { ChannelsModal, BlocksModal, URLModal } from "./Modals";
 import { Settings } from "./Settings";
 
+// Parse an are.na block id from a pasted block URL or a bare numeric id.
+// Returns null when the input contains neither.
+export function getIDFromURL(url: string): number | null {
+	const blockMatch = url.match(/block\/(\d+)/);
+	if (blockMatch) {
+		return Number(blockMatch[1]);
+	}
+
+	if (/^\d+$/.test(url)) {
+		return Number(url);
+	}
+
+	return null;
+}
+
 export default class Commands {
 	app: App;
 	settings: Settings;
@@ -136,12 +151,7 @@ export default class Commands {
 							channel.title,
 						);
 
-						let content = block.content;
-
-						if (block.class === "Image" || block.class === "Link") {
-							const imageUrl = block.image?.display.url;
-							content = `![](${imageUrl})`;
-						}
+						const content = Utils.getBlockContent(block);
 
 						try {
 							await this.fileHandler.writeFile(
@@ -149,9 +159,7 @@ export default class Commands {
 								fileName,
 								content,
 								frontData,
-								block.class === "Attachment"
-									? block.attachment
-									: undefined,
+								Utils.getBlockAttachment(block),
 							);
 							notesCreated++;
 						} catch (error) {
@@ -197,7 +205,6 @@ export default class Commands {
 		if (blockId) {
 			this.arena.getBlockWithID(blockId).then(async (block) => {
 				const title = block.generated_title;
-				let content = block.content;
 				const channelTitle = frontMatter?.channel as string;
 
 				const frontData = Utils.getFrontmatterFromBlock(
@@ -205,17 +212,14 @@ export default class Commands {
 					channelTitle,
 				);
 
-				if (block.class === "Image" || block.class === "Link") {
-					const imageUrl = block.image?.display.url;
-					content = `![](${imageUrl})`;
-				}
+				const content = Utils.getBlockContent(block);
 
 				this.fileHandler.renameFile(
 					currentFile,
 					title,
 					content,
 					frontData,
-					block.class === "Attachment" ? block.attachment : undefined,
+					Utils.getBlockAttachment(block),
 				);
 			});
 		} else {
@@ -254,19 +258,14 @@ export default class Commands {
 				);
 				const slug = Utils.createPermalinkFromTitle(channel.title);
 
-				let content = block.content;
-
-				if (block.class === "Image" || block.class === "Link") {
-					const imageUrl = block.image?.display.url;
-					content = `![](${imageUrl})`;
-				}
+				const content = Utils.getBlockContent(block);
 
 				await this.fileHandler.writeFile(
 					`${this.settings.folder}/${slug}`,
 					fileName,
 					content,
 					frontData,
-					block.class === "Attachment" ? block.attachment : undefined,
+					Utils.getBlockAttachment(block),
 				);
 
 				new Notice(`Note created`);
@@ -300,44 +299,23 @@ export default class Commands {
 
 	async getBlockByID() {
 		new URLModal(this.app, (url: string) => {
-			function getIDFromURL(url: string) {
-				const blockMatch = url.match(/(?:block\/)(\d+)/);
+			const blockId = getIDFromURL(url);
 
-				if (blockMatch) {
-					return blockMatch[1];
-				}
-
-				if (/^\d+$/.test(url)) {
-					return url;
-				}
-
-				return -1;
-			}
-
-			const blockId = getIDFromURL(url) as number;
-
-			if (blockId > 0) {
+			if (blockId !== null && blockId > 0) {
 				this.arena
 					.getBlockWithID(blockId)
 					.then(async (block) => {
 						const fileName = `${block.generated_title}`;
 						const frontData = Utils.getFrontmatterFromBlock(block);
 
-						let content = block.content;
-
-						if (block.class === "Image" || block.class === "Link") {
-							const imageUrl = block.image?.display.url;
-							content = `![](${imageUrl})`;
-						}
+						const content = Utils.getBlockContent(block);
 
 						await this.fileHandler.writeFile(
 							`${this.settings.folder}`,
 							fileName,
 							content,
 							frontData,
-							block.class === "Attachment"
-								? block.attachment
-								: undefined,
+							Utils.getBlockAttachment(block),
 						);
 
 						new Notice(`Note created`);

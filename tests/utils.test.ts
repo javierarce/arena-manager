@@ -67,6 +67,69 @@ describe("Utils.getFrontmatterFromBlock", () => {
 	});
 });
 
+describe("Utils.getBlockContent", () => {
+	const base: Block = {
+		id: 1,
+		class: "Text",
+		title: "",
+		content: "the body",
+		description: "",
+		generated_title: "x",
+		position: 0,
+	};
+
+	it("returns the markdown body for non-media blocks", () => {
+		expect(Utils.getBlockContent(base)).toBe("the body");
+	});
+
+	it("returns an image embed for Image and Link blocks", () => {
+		const img: Block = {
+			...base,
+			class: "Image",
+			image: { display: { url: "https://img/x.png" } },
+		};
+		expect(Utils.getBlockContent(img)).toBe("![](https://img/x.png)");
+		expect(Utils.getBlockContent({ ...img, class: "Link" })).toBe(
+			"![](https://img/x.png)",
+		);
+	});
+
+	it("embeds `undefined` when an Image/Link has no image (existing behavior)", () => {
+		expect(Utils.getBlockContent({ ...base, class: "Image" })).toBe(
+			"![](undefined)",
+		);
+	});
+});
+
+describe("Utils.getBlockAttachment", () => {
+	const attachment = {
+		extension: "pdf",
+		file_name: "doc.pdf",
+		file_size: 10,
+		url: "https://files/doc.pdf",
+	};
+	const block: Block = {
+		id: 1,
+		class: "Attachment",
+		title: "",
+		content: "",
+		description: "",
+		generated_title: "x",
+		position: 0,
+		attachment,
+	};
+
+	it("returns the attachment only for Attachment blocks", () => {
+		expect(Utils.getBlockAttachment(block)).toBe(attachment);
+	});
+
+	it("returns undefined for any other class", () => {
+		expect(
+			Utils.getBlockAttachment({ ...block, class: "Image" }),
+		).toBeUndefined();
+	});
+});
+
 describe("Utils.hasRequiredSettings", () => {
 	const base: Settings = {
 		accessToken: "token",

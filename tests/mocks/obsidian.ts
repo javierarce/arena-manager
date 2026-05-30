@@ -22,11 +22,25 @@ export class TFolder extends TAbstractFile {
 	children: TAbstractFile[] = [];
 }
 
-// `Settings.ts` declares a settings-tab class that extends PluginSettingTab at
-// module-evaluation time, so importing its constants pulls these in. They only
-// need to be constructable; their UI behavior is never exercised in tests.
+// `Settings.ts` and `Modals.ts` extend these Obsidian base classes at
+// module-evaluation time, so importing anything from those files pulls them in.
+// They only need to be constructable; their UI behavior is never exercised.
 export class PluginSettingTab {
 	constructor(_app?: unknown, _plugin?: unknown) {}
 }
 
 export class Setting {}
+
+export class Modal {
+	constructor(_app?: unknown) {}
+}
+
+export class FuzzySuggestModal {
+	constructor(_app?: unknown) {}
+}
+
+export class Notice {
+	constructor(_message?: string) {}
+}
+
+export class Events {}
