@@ -20,12 +20,33 @@
 	margin-top: -12px;
 	opacity: 0.5;
 }
-.arena-manager-url-form {
-	display: flex;
-	gap: 12px;
+/* The source chooser reuses FuzzySuggestModal but has no use for search; hide
+   the input field (and its clear button) so only the option list shows. */
+.arena-manager-no-search .prompt-input-container {
+	display: none;
 }
-.arena-manager-url-form input {
-	width: 100%;
+/* The text-input prompt reuses SuggestModal for its top-anchored input field but
+   has no suggestions to offer; hide the results list so only the input shows. */
+.arena-manager-input-only .prompt-results {
+	display: none;
+}
+/* Inline status row beneath the input: hidden until there's an error or progress
+   to report, so a bad URL is corrected in place rather than via a transient
+   notice. */
+.arena-manager-input-status {
+	display: none;
+	padding: 8px var(--size-4-6) 4px;
+	font-size: var(--font-ui-smaller);
+}
+.arena-manager-input-status.is-error,
+.arena-manager-input-status.is-loading {
+	display: block;
+}
+.arena-manager-input-status.is-error {
+	color: var(--text-error);
+}
+.arena-manager-input-status.is-loading {
+	color: var(--text-muted);
 }
 .arena-manager-modal .icon-lock::after {
 	content: "";

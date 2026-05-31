@@ -35,6 +35,10 @@ export class Modal {
 	constructor(_app?: unknown) {}
 }
 
+export class SuggestModal {
+	constructor(_app?: unknown) {}
+}
+
 export class FuzzySuggestModal {
 	constructor(_app?: unknown) {}
 }

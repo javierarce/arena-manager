@@ -4,7 +4,13 @@ import Arena from "./Arena";
 import FileHandler from "./FileHandler";
 import Utils from "./Utils";
 import { ARENA_BLOCK_URL, Channel, Block } from "./types";
-import { ChannelsModal, BlocksModal, URLModal } from "./Modals";
+import {
+	ChannelsModal,
+	BlocksModal,
+	InputModal,
+	ChannelSource,
+	ChannelSourceModal,
+} from "./Modals";
 import { Settings } from "./Settings";
 
 // Parse an are.na block id from a pasted block URL or a bare numeric id.
@@ -20,6 +26,27 @@ export function getIDFromURL(url: string): number | null {
 	}
 
 	return null;
+}
+
+// Parse an are.na channel slug from a pasted channel URL or a bare slug.
+// Channel URLs look like `are.na/{user}/{channel-slug}`, so the slug is the last
+// path segment. A bare slug is returned untouched. Block URLs/ids return null —
+// they aren't channels (use getIDFromURL for those).
+export function getSlugFromURL(input: string): string | null {
+	let value = input.trim();
+	if (!value) {
+		return null;
+	}
+
+	if (/\bblock\/\d+/.test(value) || /^\d+$/.test(value)) {
+		return null;
+	}
+
+	// Drop the query string / hash, then any trailing slashes.
+	value = value.split(/[?#]/)[0].replace(/\/+$/, "");
+
+	const slug = value.substring(value.lastIndexOf("/") + 1);
+	return slug || null;
 }
 
 export default class Commands {
@@ -127,80 +154,150 @@ export default class Commands {
 		});
 	}
 
-	async getBlocksFromChannel() {
+	// Ask where the channel should come from (your channels, another user's
+	// channels, or a pasted channel URL), then hand the resolved channel to
+	// `onResolve`. Shared by getBlocksFromChannel and getBlockFromArena.
+	private resolveChannel(onResolve: (channel: Channel) => void) {
+		new ChannelSourceModal(
+			this.app,
+			this.settings.username,
+			(source: ChannelSource) => {
+				if (source === "your-channels") {
+					this.openChannelPicker(this.settings.username, onResolve);
+				} else if (source === "other-user") {
+					this.openOtherUserChannelPicker(onResolve);
+				} else {
+					this.openChannelFromURL(onResolve);
+				}
+			},
+		).open();
+	}
+
+	// Fuzzy-pick a channel from a given user's (accessible) channels.
+	private openChannelPicker(
+		username: string,
+		onResolve: (channel: Channel) => void,
+	) {
 		const events = new Events();
 
-		const callback = (channel: Channel) => {
-			let notesCreated = 0;
-			let failed = 0;
-			new Notice(`Getting blocks from ${channel.title}…`);
-
-			void this.arena
-				.getBlocksFromChannel(channel.slug)
-				.then(async (blocks) => {
-					for (const block of blocks) {
-						// Skip nested channels; every other type (including Embed
-						// media) is imported as a note.
-						if (block.class === "Channel") {
-							continue;
-						}
-						const fileName = block.generated_title
-							? block.generated_title
-							: block.title;
-
-						const frontData = Utils.getFrontmatterFromBlock(
-							block,
-							channel.title,
-						);
-
-						const slug = Utils.createPermalinkFromTitle(
-							channel.title,
-						);
-
-						const content = Utils.getBlockContent(block);
-
-						try {
-							await this.fileHandler.writeFile(
-								`${this.settings.folder}/${slug}`,
-								fileName,
-								content,
-								frontData,
-								Utils.getDownloadable(block),
-							);
-							notesCreated++;
-						} catch (error) {
-							console.error(error);
-							failed++;
-						}
-					}
-
-					const saved = `${notesCreated} note${notesCreated !== 1 ? "s" : ""} saved`;
-					new Notice(failed ? `${saved}, ${failed} failed` : saved);
-				})
-				.catch((error) => {
-					console.error(error);
-					new Notice(`Couldn't get blocks from ${channel.title}.`);
-				});
-		};
-
-		const modal = new ChannelsModal(
+		new ChannelsModal(
 			this.app,
 			this.settings,
 			false,
 			events,
-			callback,
-		);
-
-		modal.open();
+			onResolve,
+			username,
+		).open();
 
 		void this.arena
-			.getChannelsFromUser()
+			.getChannelsFromUser(username)
 			.then((channels) => {
 				events.trigger("channels-load", channels);
 			})
 			.catch((error) => {
 				console.error(error);
-				new Notice("Couldn't load your channels.");
+				new Notice(`Couldn't load @${username}'s channels.`);
+			});
+	}
+
+	// Prompt for a username, then pick from that user's channels.
+	private openOtherUserChannelPicker(onResolve: (channel: Channel) => void) {
+		new InputModal(
+			this.app,
+			(value: string) => {
+				const username = value.trim().replace(/^@/, "");
+				if (!username) {
+					return "Enter an are.na username.";
+				}
+				this.openChannelPicker(username, onResolve);
+				return null;
+			},
+			{
+				placeholder: "Enter an are.na username",
+			},
+		).open();
+	}
+
+	// Prompt for a channel URL (or slug) and resolve it directly.
+	private openChannelFromURL(onResolve: (channel: Channel) => void) {
+		new InputModal(
+			this.app,
+			(value: string) => {
+				const slug = getSlugFromURL(value);
+				if (!slug) {
+					return "That doesn't look like an are.na channel URL.";
+				}
+				// Resolve the channel before closing so a missing/private/typo'd
+				// slug surfaces as an inline error instead of a dead-end notice.
+				return this.arena
+					.getChannel(slug)
+					.then((channel) => {
+						onResolve(channel);
+						return null;
+					})
+					.catch((error) => {
+						console.error(error);
+						return "Couldn't find that channel. Check the URL and try again.";
+					});
+			},
+			{
+				placeholder: "Enter an are.na channel URL",
+			},
+		).open();
+	}
+
+	async getBlocksFromChannel() {
+		this.resolveChannel((channel) => this.importBlocksFromChannel(channel));
+	}
+
+	private importBlocksFromChannel(channel: Channel) {
+		let notesCreated = 0;
+		let failed = 0;
+		new Notice(`Getting blocks from ${channel.title}…`);
+
+		void this.arena
+			.getBlocksFromChannel(channel.slug)
+			.then(async (blocks) => {
+				for (const block of blocks) {
+					// Skip nested channels; every other type (including Embed
+					// media) is imported as a note.
+					if (block.class === "Channel") {
+						continue;
+					}
+					const fileName = block.generated_title
+						? block.generated_title
+						: block.title;
+
+					const frontData = Utils.getFrontmatterFromBlock(
+						block,
+						channel.title,
+					);
+
+					const slug = Utils.createPermalinkFromTitle(channel.title);
+
+					const content = Utils.getBlockContent(block);
+
+					try {
+						await this.fileHandler.writeFile(
+							`${this.settings.folder}/${slug}`,
+							fileName,
+							content,
+							frontData,
+							Utils.getDownloadable(block),
+						);
+						notesCreated++;
+					} catch (error) {
+						console.error(error);
+						failed++;
+					}
+				}
+
+				const saved = `${notesCreated} note${notesCreated !== 1 ? "s" : ""} saved`;
+				new Notice(failed ? `${saved}, ${failed} failed` : saved);
+			})
+			.catch((error) => {
+				console.error(error);
+				new Notice(`Couldn't get blocks from ${channel.title}.`);
 			});
 	}
 
@@ -273,108 +370,95 @@ export default class Commands {
 	}
 
 	async getBlockFromArena() {
+		this.resolveChannel((channel) => this.pickBlockFromChannel(channel));
+	}
+
+	private pickBlockFromChannel(channel: Channel) {
 		const events = new Events();
 
-		const onSelectChannel = (channel: Channel) => {
-			const onSelectBlock = (block: Block, channel: Channel) => {
-				const fileName = `${block.generated_title}`;
-				const frontData = Utils.getFrontmatterFromBlock(
-					block,
-					channel.title,
-				);
-				const slug = Utils.createPermalinkFromTitle(channel.title);
+		const onSelectBlock = (block: Block, channel: Channel) => {
+			const fileName = `${block.generated_title}`;
+			const frontData = Utils.getFrontmatterFromBlock(
+				block,
+				channel.title,
+			);
+			const slug = Utils.createPermalinkFromTitle(channel.title);
 
-				const content = Utils.getBlockContent(block);
+			const content = Utils.getBlockContent(block);
 
-				void this.fileHandler
-					.writeFile(
-						`${this.settings.folder}/${slug}`,
-						fileName,
-						content,
-						frontData,
-						Utils.getDownloadable(block),
-					)
-					.then(() => {
-						new Notice("Note saved");
-						return this.app.workspace.openLinkText(
-							this.fileHandler.getSafeFilename(fileName),
-							"",
-							true,
-						);
-					})
-					.catch((error) => {
-						console.error(error);
-						new Notice(`Couldn't save block: ${error.message}`);
-					});
-			};
-
-			new BlocksModal(this.app, channel, events, onSelectBlock).open();
-
-			void this.arena
-				.getBlocksFromChannel(channel.slug)
-				.then((blocks) => {
-					events.trigger("blocks-load", blocks);
+			void this.fileHandler
+				.writeFile(
+					`${this.settings.folder}/${slug}`,
+					fileName,
+					content,
+					frontData,
+					Utils.getDownloadable(block),
+				)
+				.then(() => {
+					new Notice("Note saved");
+					return this.app.workspace.openLinkText(
+						this.fileHandler.getSafeFilename(fileName),
+						"",
+						true,
+					);
 				})
 				.catch((error) => {
 					console.error(error);
-					new Notice("Couldn't load blocks from that channel.");
+					new Notice(`Couldn't save block: ${error.message}`);
 				});
 		};
 
-		new ChannelsModal(
-			this.app,
-			this.settings,
-			false,
-			events,
-			onSelectChannel,
-		).open();
+		new BlocksModal(this.app, channel, events, onSelectBlock).open();
 
 		void this.arena
-			.getChannelsFromUser()
-			.then((channels) => {
-				events.trigger("channels-load", channels);
+			.getBlocksFromChannel(channel.slug)
+			.then((blocks) => {
+				events.trigger("blocks-load", blocks);
 			})
 			.catch((error) => {
 				console.error(error);
-				new Notice("Couldn't load your channels.");
+				new Notice("Couldn't load blocks from that channel.");
 			});
 	}
 
 	async getBlockByID() {
-		new URLModal(this.app, (url: string) => {
+		new InputModal(this.app, (url: string) => {
 			const blockId = getIDFromURL(url);
 
-			if (blockId !== null && blockId > 0) {
-				void this.arena
-					.getBlockWithID(blockId)
-					.then(async (block) => {
-						const fileName = `${block.generated_title}`;
-						const frontData = Utils.getFrontmatterFromBlock(block);
-
-						const content = Utils.getBlockContent(block);
-
-						await this.fileHandler.writeFile(
-							`${this.settings.folder}`,
-							fileName,
-							content,
-							frontData,
-							Utils.getDownloadable(block),
-						);
-
-						new Notice("Note saved");
-						await this.app.workspace.openLinkText(
-							this.fileHandler.getSafeFilename(fileName),
-							"",
-							true,
-						);
-					})
-					.catch((error) => {
-						console.error(error);
-						new Notice(`Couldn't import block: ${error.message}`);
-					});
-			} else {
-				new Notice("That doesn't look like an are.na block URL or id.");
+			if (blockId === null || blockId <= 0) {
+				return "That doesn't look like an are.na block URL or id.";
 			}
+
+			// Fetch and save before closing so an unknown/private block id shows
+			// an inline error rather than dismissing the prompt with a notice.
+			return this.arena
+				.getBlockWithID(blockId)
+				.then(async (block) => {
+					const fileName = `${block.generated_title}`;
+					const frontData = Utils.getFrontmatterFromBlock(block);
+
+					const content = Utils.getBlockContent(block);
+
+					await this.fileHandler.writeFile(
+						`${this.settings.folder}`,
+						fileName,
+						content,
+						frontData,
+						Utils.getDownloadable(block),
+					);
+
+					new Notice("Note saved");
+					await this.app.workspace.openLinkText(
+						this.fileHandler.getSafeFilename(fileName),
+						"",
+						true,
+					);
+					return null;
+				})
+				.catch((error) => {
+					console.error(error);
+					return `Couldn't import that block. Check the id or URL and try again.`;
+				});
 		}).open();
 	}
 }

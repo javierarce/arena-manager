@@ -114,6 +114,22 @@ describe("Arena.getChannelsFromUser", () => {
 		expect(url).toContain("per=100");
 	});
 
+	it("defaults to the signed-in user but accepts another username", async () => {
+		mockRequestUrl.mockResolvedValueOnce({
+			status: 200,
+			json: channelsPage2,
+		} as never);
+
+		const arena = new Arena(settings);
+		await arena.getChannelsFromUser("someone-else");
+
+		const url = mockRequestUrl.mock.calls[0][0].url;
+		expect(url).toContain(
+			"https://api.are.na/v3/users/someone-else/contents",
+		);
+		expect(url).not.toContain("/users/tester/");
+	});
+
 	it("paginates and normalizes every channel", async () => {
 		mockRequestUrl
 			.mockResolvedValueOnce({ status: 200, json: channelsPage1 } as never)
@@ -141,6 +157,48 @@ describe("Arena.getChannelsFromUser", () => {
 		const arena = new Arena(settings);
 		const channels = await arena.getChannelsFromUser();
 		expect(channels).toEqual([]);
+	});
+});
+
+describe("Arena.getChannel", () => {
+	beforeEach(() => {
+		mockRequestUrl.mockReset();
+	});
+
+	const rawChannel = channelsPage1.data[0];
+
+	it("fetches a single channel by slug and normalizes it", async () => {
+		mockRequestUrl.mockResolvedValueOnce({
+			status: 200,
+			json: rawChannel,
+		} as never);
+
+		const arena = new Arena(settings);
+		const channel = await arena.getChannel(rawChannel.slug);
+
+		const call = mockRequestUrl.mock.calls[0][0];
+		expect(call.url).toContain(
+			`https://api.are.na/v3/channels/${rawChannel.slug}`,
+		);
+		expect(call.headers).toMatchObject({
+			Authorization: "Bearer test-token",
+		});
+		// Normalized: counts.blocks -> length, visibility -> status.
+		expect(channel.slug).toBe(rawChannel.slug);
+		expect(channel.title).toBe(rawChannel.title);
+		expect(channel.length).toBe(rawChannel.counts.blocks);
+	});
+
+	it("throws the are.na error message on a failure status", async () => {
+		mockRequestUrl.mockResolvedValueOnce({
+			status: 404,
+			json: { title: "Not Found" },
+		} as never);
+
+		const arena = new Arena(settings);
+		await expect(arena.getChannel("missing-channel")).rejects.toThrow(
+			"Not Found",
+		);
 	});
 });
 

@@ -6,14 +6,14 @@ Publish content from [Obsidian](https://obsidian.md) to [Are.na](https://www.are
 
 Currently this plugin offers 6 commands:
 
-| Command                      | Description                                                                                         |
-| :--------------------------- | :-------------------------------------------------------------------------------------------------- |
-| Get blocks from channel      | Get all the blocks from a channel and create a new note in Obsidian with the content of each block. |
-| Pull block                   | Updates the current open note with the content of a block from Are.na.                              |
-| Push note                    | Pushes the content of the current open note to a block in Are.na.                                   |
-| Get block from Are.na        | Creates a new note with the content of a block from your Are.na account.                            |
-| Get block by its ID or URL   | Creates a new note with the content of a block from Are.na by its ID or URL.                        |
-| Go to block in Are.na        | Opens the block in the Are.na website.                                                              |
+| Command                      | Description                                                                                                                       |
+| :--------------------------- | :------------------------------------------------------------------------------------------------------------------------------- |
+| Get blocks from channel      | Get all the blocks from your own channels, other people's public channels, or any channel URL, and create a note for each block. |
+| Pull block from Are.na       | Update the current open note with the content of a specific block.                                                              |
+| Push note to Are.na          | Push the content of the current open note to a channel or block.                                                                |
+| Get a block from Are.na      | Create a new note from a single block you pick out of your own channels, other people's public channels, or any channel URL.     |
+| Get a block by ID or URL     | Create a new note from a specific block using its direct ID or URL.                                                             |
+| Go to block on Are.na        | Open the selected block directly on the website.                                                                                |
 
 ### Installation
 
@@ -56,7 +56,7 @@ When you get a block from Are.na, the plugin will add some frontmatter automatic
 -   [ ] Avoid overriding the frontmatter when pulling a block.
 -   [ ] Template system (from [this issue](https://github.com/javierarce/arena-manager/issues/1))
 -   [ ] Getting blocks to folders outside of the Are.na directory designated in the settings.
--   [ ] Getting blocks from other users’ channels.
+-   [x] Getting blocks from other users’ channels.
 -   [ ] Creating new channels from the content of a note or directory
 
 ### Contributing
