@@ -84,7 +84,7 @@ export default class ArenaManagerPlugin extends Plugin {
 
 		this.addCommand({
 			id: "go-to-block",
-			name: "Go to block in Are.na",
+			name: "Go to block on Are.na",
 			checkCallback: (checking: boolean) => {
 				const currentFile = this.app.workspace.getActiveFile();
 
@@ -101,7 +101,7 @@ export default class ArenaManagerPlugin extends Plugin {
 
 		this.addCommand({
 			id: "get-block-by-id",
-			name: "Get a block by its ID or URL",
+			name: "Get a block by ID or URL",
 			checkCallback: (checking: boolean) => {
 				if (Utils.hasRequiredSettings(this.settings)) {
 					if (!checking) {

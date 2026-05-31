@@ -1,6 +1,7 @@
 import { requestUrl } from "obsidian";
 import {
 	ArenaBlock,
+	ArenaChannel,
 	ArenaChannelsResponse,
 	ArenaContentsResponse,
 	Channel,
@@ -32,10 +33,15 @@ export default class Arena {
 		this.settings = settings;
 	}
 
-	async getChannelsFromUser(): Promise<Channel[]> {
+	// Defaults to the signed-in user, but accepts any username so the picker can
+	// browse another user's channels. The token only ever sees channels it has
+	// access to, so private channels of other users simply don't come back.
+	async getChannelsFromUser(
+		username: string = this.settings.username,
+	): Promise<Channel[]> {
 		// v3 removed `/users/:id/channels`; a user's channels are their
 		// contents filtered to the Channel type.
-		const baseUrl = `https://api.are.na/v3/users/${this.settings.username}/contents`;
+		const baseUrl = `https://api.are.na/v3/users/${username}/contents`;
 		const headers = {
 			Authorization: `Bearer ${this.settings.accessToken}`,
 		};
@@ -69,6 +75,24 @@ export default class Arena {
 		}
 
 		return channels;
+	}
+
+	// Resolve a single channel by slug (or numeric id), used when the user pastes
+	// a channel URL. v3 returns the channel object directly, not wrapped in `data`.
+	async getChannel(slug: string): Promise<Channel> {
+		const response = await requestUrl({
+			url: `https://api.are.na/v3/channels/${slug}?v=${Date.now()}`,
+			throw: false,
+			headers: {
+				Authorization: `Bearer ${this.settings.accessToken}`,
+			},
+		});
+
+		if (response.status >= 400) {
+			throw new Error(getErrorMessage(response));
+		}
+
+		return normalizeChannel(response.json as ArenaChannel);
 	}
 
 	async updateBlockWithContentAndBlockID(
