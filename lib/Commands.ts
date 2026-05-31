@@ -139,10 +139,9 @@ export default class Commands {
 				.getBlocksFromChannel(channel.slug)
 				.then(async (blocks) => {
 					for (const block of blocks) {
-						if (
-							block.class === "Channel" ||
-							block.class === "Media"
-						) {
+						// Skip nested channels; every other type (including Embed
+						// media) is imported as a note.
+						if (block.class === "Channel") {
 							continue;
 						}
 						const fileName = block.generated_title

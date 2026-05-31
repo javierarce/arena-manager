@@ -7,11 +7,15 @@ class Utils {
 	}
 
 	// Image and Link blocks have no usable markdown body; represent them as an
-	// embedded image pointing at the block's display URL. Everything else uses
-	// its own content.
+	// embedded image pointing at the block's display URL. Embed (Media) blocks
+	// — YouTube, Vimeo, etc. — carry their iframe HTML, which Obsidian renders as
+	// a playable embed in reading view. Everything else uses its own content.
 	getBlockContent(block: Block): string {
 		if (block.class === "Image" || block.class === "Link") {
 			return `![](${block.image?.display.url})`;
+		}
+		if (block.embed?.html) {
+			return block.embed.html;
 		}
 		return block.content;
 	}

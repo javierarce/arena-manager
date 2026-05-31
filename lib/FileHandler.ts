@@ -3,6 +3,11 @@ import { App, TFile, TAbstractFile, TFolder, requestUrl } from "obsidian";
 import { Attachment } from "./types";
 import { Settings, DOWNLOAD_ATTACHMENTS_TYPES } from "./Settings";
 
+// Most filesystems cap a single path component at 255 bytes. Stay well under
+// that so the appended `.md`, a `-<n>` de-duplication suffix, or an attachment
+// extension can't push the final name over the limit. See issue #7.
+const MAX_FILENAME_LENGTH = 200;
+
 export default class Filemanager {
 	app: App;
 	settings: Settings;
@@ -21,7 +26,22 @@ export default class Filemanager {
 			.replace(/[\\/:*?"<>|#^[\]]/g, " ")
 			.replace(/\s+/g, " ")
 			.trim();
-		return safe || "Untitled";
+		return this.truncateFilename(safe || "Untitled");
+	}
+
+	// Clamp an over-long name to MAX_FILENAME_LENGTH, preserving a short trailing
+	// extension (e.g. ".png") when present so truncated attachment names keep a
+	// valid type. Longer tails after the final dot are treated as prose, not an
+	// extension, and simply cut.
+	private truncateFilename(name: string): string {
+		if (name.length <= MAX_FILENAME_LENGTH) {
+			return name;
+		}
+		const dotIndex = name.lastIndexOf(".");
+		const hasExtension = dotIndex > 0 && name.length - dotIndex <= 6;
+		const extension = hasExtension ? name.slice(dotIndex) : "";
+		const stem = hasExtension ? name.slice(0, dotIndex) : name;
+		return stem.slice(0, MAX_FILENAME_LENGTH - extension.length) + extension;
 	}
 
 	// Block ids round-trip through YAML frontmatter, where they can come back as

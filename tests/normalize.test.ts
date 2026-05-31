@@ -145,6 +145,27 @@ describe("normalizeBlock", () => {
 		});
 	});
 
+	it("maps an Embed (Media) block's iframe html", () => {
+		const raw = {
+			id: 1,
+			type: "Embed",
+			embed: { html: "<iframe src='https://youtube.com/embed/x'></iframe>" },
+		} as unknown as ArenaBlock;
+		expect(normalizeBlock(raw).embed).toEqual({
+			html: "<iframe src='https://youtube.com/embed/x'></iframe>",
+		});
+	});
+
+	it("omits embed when there is no html", () => {
+		const raw = {
+			id: 1,
+			type: "Embed",
+			embed: { html: null },
+		} as unknown as ArenaBlock;
+		expect(normalizeBlock(raw).embed).toBeUndefined();
+		expect(normalizeBlock(image).embed).toBeUndefined();
+	});
+
 	it("maps source and user when present", () => {
 		const block = normalizeBlock(link);
 		expect(block.source).toEqual({
@@ -170,9 +191,11 @@ describe("normalizeChannel", () => {
 		expect(c.title).toBe(channel.title);
 	});
 
-	it("derives length from counts.contents (v3 dropped `length`)", () => {
+	it("derives length from counts.blocks, excluding nested channels", () => {
+		// The fixture channel has 10 blocks + 1 nested channel (contents: 11).
 		const c = normalizeChannel(channel);
-		expect(c.length).toBe(channel.counts.contents);
+		expect(c.length).toBe(channel.counts.blocks);
+		expect(c.length).not.toBe(channel.counts.contents);
 	});
 
 	it("maps visibility to status", () => {
