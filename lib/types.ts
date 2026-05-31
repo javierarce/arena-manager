@@ -100,6 +100,8 @@ export interface Block {
 	attachment?: Attachment;
 	user?: { slug: string };
 	source?: { title: string; url: string };
+	// Embeddable media (YouTube, Vimeo, …): the ready-to-render iframe HTML.
+	embed?: { html: string };
 }
 
 // --- Raw are.na v3 API response shapes ---
@@ -138,6 +140,23 @@ export interface ArenaSource {
 	provider?: Provider;
 }
 
+/**
+ * oEmbed-style payload v3 returns for Embed (Media) blocks — YouTube/Vimeo
+ * videos, audio, etc. `html` is the iframe markup we render into the note.
+ */
+export interface ArenaEmbed {
+	url: string | null;
+	type: string | null;
+	title: string | null;
+	author_name: string | null;
+	author_url: string | null;
+	source_url: string | null;
+	thumbnail_url: string | null;
+	width: number | null;
+	height: number | null;
+	html: string | null;
+}
+
 export interface ArenaUser {
 	id: number;
 	slug: string;
@@ -158,6 +177,7 @@ export interface ArenaBlock {
 	description: ArenaText | null;
 	image: ArenaImage | null;
 	attachment: ArenaAttachment | null;
+	embed: ArenaEmbed | null;
 	source: ArenaSource | null;
 	user: ArenaUser | null;
 	connection: ArenaConnection | null;

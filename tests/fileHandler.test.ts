@@ -71,6 +71,31 @@ describe("FileHandler.getSafeFilename", () => {
 	it("leaves a clean name untouched", () => {
 		expect(makeHandler().getSafeFilename("My Note")).toBe("My Note");
 	});
+
+	it("truncates over-long names to 200 characters (issue #7)", () => {
+		const long = "a".repeat(300);
+		expect(makeHandler().getSafeFilename(long)).toHaveLength(200);
+	});
+
+	it("preserves a short trailing extension when truncating", () => {
+		const name = `${"a".repeat(300)}.png`;
+		const result = makeHandler().getSafeFilename(name);
+		expect(result).toHaveLength(200);
+		expect(result.endsWith(".png")).toBe(true);
+	});
+
+	it("treats a long tail after the final dot as prose, not an extension", () => {
+		const name = "a".repeat(150) + "." + "b".repeat(100);
+		const result = makeHandler().getSafeFilename(name);
+		expect(result).toHaveLength(200);
+		// Cut mid-tail rather than preserving a 100-char "extension".
+		expect(result).toBe(name.slice(0, 200));
+	});
+
+	it("leaves names at or under the limit untouched", () => {
+		const name = "a".repeat(200);
+		expect(makeHandler().getSafeFilename(name)).toBe(name);
+	});
 });
 
 describe("FileHandler.getAttachmentFilenameFromTitle", () => {

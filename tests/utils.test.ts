@@ -99,6 +99,18 @@ describe("Utils.getBlockContent", () => {
 			"![](undefined)",
 		);
 	});
+
+	it("returns the iframe html for Embed (Media) blocks", () => {
+		const embedBlock: Block = {
+			...base,
+			class: "Embed",
+			content: "",
+			embed: { html: "<iframe src='https://youtube.com/embed/x'></iframe>" },
+		};
+		expect(Utils.getBlockContent(embedBlock)).toBe(
+			"<iframe src='https://youtube.com/embed/x'></iframe>",
+		);
+	});
 });
 
 describe("Utils.getBlockAttachment", () => {

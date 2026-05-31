@@ -95,6 +95,12 @@ export function normalizeBlock(raw: ArenaBlock): Block {
 		};
 	}
 
+	// Embed (Media) blocks have no markdown body; their value is the iframe HTML.
+	// Keep it so getBlockContent can render the playable embed into the note.
+	if (raw.embed?.html) {
+		block.embed = { html: raw.embed.html };
+	}
+
 	if (raw.user?.slug) {
 		block.user = { slug: raw.user.slug };
 	}
@@ -110,15 +116,20 @@ export function normalizeBlock(raw: ArenaBlock): Block {
  * Map a raw are.na v3 channel into the plugin's internal {@link Channel} shape.
  *
  * v3 changes relative to v2:
- *   - `length` (total content count) -> `counts.contents`
+ *   - `length` (total content count) -> `counts.blocks`
  *   - `status` -> `visibility`
+ *
+ * `length` uses `counts.blocks`, not `counts.contents`: `contents` also counts
+ * nested channels, which getBlocksFromChannel skips. Counting them made a
+ * channel whose only connection is a sub-channel show a non-zero count and then
+ * import nothing, and slip past the empty-channel filter in the picker.
  */
 export function normalizeChannel(raw: ArenaChannel): Channel {
 	return {
 		id: raw.id,
 		slug: raw.slug,
 		title: raw.title ?? "",
-		length: raw.counts?.contents ?? 0,
+		length: raw.counts?.blocks ?? 0,
 		status: raw.visibility,
 	};
 }
