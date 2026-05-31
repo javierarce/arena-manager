@@ -57,7 +57,6 @@ When you get a block from Are.na, the plugin will add some frontmatter automatic
 -   [ ] Template system (from [this issue](https://github.com/javierarce/arena-manager/issues/1))
 -   [ ] Getting blocks to folders outside of the Are.na directory designated in the settings.
 -   [ ] Getting blocks from other users’ channels.
--   [ ] Downloading blocks by URL.
 -   [ ] Creating new channels from the content of a note or directory
 
 ### Contributing
