@@ -53,10 +53,10 @@ When you get a block from Are.na, the plugin will add some frontmatter automatic
 -   [x] Fetch all the user's channels.
 -   [x] Attachment offline support.
 -   [x] Getting blocks by their ID or URL.
+-   [x] Getting blocks from other users’ channels.
 -   [ ] Avoid overriding the frontmatter when pulling a block.
 -   [ ] Template system (from [this issue](https://github.com/javierarce/arena-manager/issues/1))
 -   [ ] Getting blocks to folders outside of the Are.na directory designated in the settings.
--   [x] Getting blocks from other users’ channels.
 -   [ ] Creating new channels from the content of a note or directory
 
 ### Contributing
