@@ -18,7 +18,7 @@ Currently this plugin offers 6 commands:
 ### Installation
 
 1. [Install the plugin](https://obsidian.md/plugins?id=arena-manager) and enable it.
-2. Create a 'Personal Access Token` at [https://are.na/developers](https://are.na/developers) with **read and write** access (write access is required to publish blocks and channels back to Are.na).
+2. Create a `Personal Access Token` at [https://are.na/developers](https://are.na/developers) with **read and write** access (write access is required to publish blocks and channels back to Are.na).
 3. Submit the form and copy the `Personal Access Token`.
 4. Open the plugin settings page and set the following options:
     - **Personal Access Token**: the `Personal Access Token` you copied earlier.
